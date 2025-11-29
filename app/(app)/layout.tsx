@@ -1,3 +1,4 @@
+import Navbar from "@/components/layout/Navbar";
 import QueryProviderWrapper from "@/lib/providers/QueryProvider";
 
 export default function RootLayout({
@@ -7,7 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      {/* Navbar */}
+      <Navbar />
       <QueryProviderWrapper>{children}</QueryProviderWrapper>
     </div>
   );
