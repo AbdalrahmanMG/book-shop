@@ -6,7 +6,18 @@ import { redirect } from "next/navigation";
 import { LoginSchema } from "@/validation/auth";
 import mockUsers from "@/db/users.json";
 
-export async function loginAction(formData: FormData) {
+export type FieldErrors = {
+  [key: string]: string[] | undefined;
+};
+
+export type ErrorResponse = {
+  error: string;
+  fieldErrors?: FieldErrors;
+};
+
+export type LoginActionResponse = ErrorResponse | void;
+
+export async function loginAction(formData: FormData):Promise<LoginActionResponse> {
   const data = Object.fromEntries(formData.entries());
 
   const validation = LoginSchema.safeParse(data);
