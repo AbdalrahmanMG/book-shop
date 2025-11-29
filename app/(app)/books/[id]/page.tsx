@@ -5,9 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tag, BookOpen, DollarSign, Loader2, Frown } from "lucide-react";
+import { Loader2, Frown } from "lucide-react";
 import { getBookDetails } from "@/api/books/getBookDetails";
-import { ComponentType, SVGProps } from "react";
 
 export default function BookDetailsPage() {
   const params = useParams();
@@ -51,15 +50,6 @@ export default function BookDetailsPage() {
         <p className="text-xl text-muted-foreground">Book Not Found</p>
       </div>
     );
-
-  const InfoCard = (title: string, value: string) => (
-    <Card className="p-4 flex items-center space-x-4 border-none">
-      <div className="flex flex-col">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <p className="text-lg font-bold">{value}</p>
-      </div>
-    </Card>
-  );
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-6xl">

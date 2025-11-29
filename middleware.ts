@@ -38,7 +38,10 @@ export const config = {
   matcher: [
     "/",
     "/login/:path*",
+    "/books",
     "/books/:path*",
+    "/books/new-book",
+    "/books/edit/:path*",
     "/my-books/:path*",
     "/profile/:path*",
     "/new-book/:path*",

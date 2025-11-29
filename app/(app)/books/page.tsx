@@ -108,7 +108,7 @@ const BooksPage = () => {
             📚 Book Collection
           </CardTitle>
           <div className="flex gap-3">
-            <Button onClick={() => router.push("/books/add")}>+ Add New Book</Button>
+            <Button onClick={() => router.push("/books/new-book")}>+ Add New Book</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">

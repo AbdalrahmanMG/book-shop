@@ -1,3 +1,12 @@
+export const VALID_BOOK_CATEGORIES = [
+  "Technology",
+  "Science",
+  "History",
+  "Fantasy",
+  "Biography",
+] as const;
+
+export type categories = (typeof VALID_BOOK_CATEGORIES)[number];
 export interface Book {
   id: number;
   title: string;
@@ -8,8 +17,6 @@ export interface Book {
   category: categories;
   ownerId: number;
 }
-
-export type categories = "Technology" | "Science" | "History" | "Fantasy" | "Biography";
 
 export interface User {
   id: number;

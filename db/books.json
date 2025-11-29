@@ -148,5 +148,15 @@
     "ownerId": 1,
     "thumbnail": "/uploads/upload-1764375057684-9781784161101-1-768x1199.jpg",
     "description": "A psychological thriller following a woman who becomes entangled in a missing-person investigation while riding the train every day."
+  },
+  {
+    "id": 18,
+    "title": "me book",
+    "description": "testing description",
+    "price": 200,
+    "author": "Abdo",
+    "category": "Science",
+    "ownerId": 1,
+    "thumbnail": "/uploads/upload-1764453082973-353909160.jpg"
   }
 ]
