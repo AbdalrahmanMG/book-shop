@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ProfileMenu } from "./ProfileMenu";
-import { getSessionData } from "@/api/auth/getSessionData";
+import { getSessionData } from "@/api/auth";
 
 const Navbar = async () => {
   const user = await getSessionData();
