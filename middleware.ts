@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
   if (isGuestPath && authToken) {
     return NextResponse.redirect(new URL("/books", request.url));
   }
-  
+
   if (pathname === "/") {
     if (authToken) {
       return NextResponse.redirect(new URL("/books", request.url));

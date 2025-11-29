@@ -3,23 +3,18 @@
 import { getBooks } from "@/api/books";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationLink,
-} from "@/components/ui/pagination";
-import {  useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BookCard } from "@/components/books/BookCard";
 import { getSessionData } from "@/api/auth";
+import MainPagination from "@/components/books/MainPagination";
 
 const BooksPage = () => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [bookOwnerId, setBookOwnerId] = useState<number | null>(null);
+  const [sort, setSort] = useState<"asc" | "desc" | "">("");
 
   const router = useRouter();
 
@@ -28,8 +23,8 @@ const BooksPage = () => {
     isLoading: isLoadingBooks,
     isError: isErrorBooks,
   } = useQuery({
-    queryKey: ["books", page, bookOwnerId],
-    queryFn: () => getBooks({ page, pageSize: 10, bookOwnerId }),
+    queryKey: ["books", page, sort, bookOwnerId],
+    queryFn: () => getBooks({ page, pageSize: 10, sort, bookOwnerId }),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 15,
   });
@@ -37,10 +32,10 @@ const BooksPage = () => {
   const { data: userData } = useQuery({
     queryKey: ["me"],
     queryFn: async () => getSessionData(),
-    staleTime: Infinity, 
+    staleTime: Infinity,
   });
 
-  const isAuthenticated = !!userData; 
+  const isAuthenticated = !!userData;
 
   const showOwnerBooks = () => {
     if (!bookOwnerId && isAuthenticated) {
@@ -51,10 +46,14 @@ const BooksPage = () => {
     setPage(1);
   };
 
-  const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= (booksData?.pages ?? 1)) {
-      setPage(newPage);
-    }
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleSortChange = (value: "asc" | "desc" | "") => {
+    setSort(value);
+    setPage(1);
   };
 
   const renderContent = () => {
@@ -83,50 +82,9 @@ const BooksPage = () => {
     return (
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {booksData.books.map((book) => (
-          <BookCard
-            key={book.id}
-            book={book}
-            userData={userData}
-          />
+          <BookCard key={book.id} book={book} userData={userData} />
         ))}
       </div>
-    );
-  };
-
-  const renderPagination = () => {
-    if (!booksData || booksData.pages <= 1) return null;
-
-    const pagesArray = Array.from({ length: booksData.pages }, (_, i) => i + 1);
-
-    return (
-      <Pagination className="mt-8">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => handlePageChange(page - 1)}
-              aria-disabled={page === 1}
-              className={page === 1 ? "pointer-events-none opacity-50" : undefined}
-            />
-          </PaginationItem>
-          {pagesArray.map((pageNumber) => (
-            <PaginationItem key={pageNumber}>
-              <PaginationLink
-                onClick={() => handlePageChange(pageNumber)}
-                isActive={page === pageNumber}
-              >
-                {pageNumber}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => handlePageChange(page + 1)}
-              aria-disabled={page === booksData.pages}
-              className={page === booksData.pages ? "pointer-events-none opacity-50" : undefined}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
     );
   };
 
@@ -149,8 +107,7 @@ const BooksPage = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {renderContent()}
-          {renderPagination()}
+          <MainPagination page={page} setPage={setPage} booksData={booksData} />
         </CardContent>
       </Card>
     </div>
