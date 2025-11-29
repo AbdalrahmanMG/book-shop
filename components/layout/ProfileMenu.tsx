@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { SafeUserData } from "@/types";
+import { logoutAction } from "@/api/auth";
 
 interface ProfileMenuProps {
   user: SafeUserData;
@@ -65,9 +66,11 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user }) => {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <button className="w-full text-left text-red-600 focus:text-red-700" onClick={() => {}}>
-            Logout
-          </button>
+          <form action={logoutAction}>
+            <button className="w-full text-left text-red-600 focus:text-red-700" type="submit">
+              Logout
+            </button>
+          </form>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

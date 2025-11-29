@@ -18,7 +18,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/validation/auth";
-import { loginAction, LoginActionResponse } from "@/api/auth/loginAction";
+import { loginAction, LoginActionResponse } from "@/api/auth";
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
