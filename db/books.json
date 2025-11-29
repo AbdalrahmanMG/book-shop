@@ -40,16 +40,6 @@
     "description": "A deep dive into JavaScript programming, covering both fundamental concepts and advanced techniques for modern developers."
   },
   {
-    "id": 5,
-    "title": "You Don’t Know JS or us",
-    "price": 60,
-    "thumbnail": "/uploads/upload-1764374968140-9781784161101-1-768x1199.jpg",
-    "author": "Kyle Simpson",
-    "category": "Technology",
-    "ownerId": 1,
-    "description": "A comprehensive guide to the intricacies of JavaScript, perfect for developers who want to master the language."
-  },
-  {
     "id": 6,
     "title": "Deep Work",
     "price": 22,

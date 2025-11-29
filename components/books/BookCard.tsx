@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Pencil, Trash2, Eye, Loader2 } from "lucide-react";
+import { DeleteModal } from "./DeleteModal";
 
 interface BookCardProps {
   book: Book;
@@ -15,7 +16,7 @@ interface BookCardProps {
   isDeleting?: boolean;
 }
 
-export const BookCard = ({ book, userData, isDeleting = false }: BookCardProps) => {
+export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookCardProps) => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -85,6 +86,17 @@ export const BookCard = ({ book, userData, isDeleting = false }: BookCardProps) 
           )}
         </CardFooter>
       </Card>
+
+      <DeleteModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onConfirm={() => {
+          onDelete?.();
+          setIsModalOpen(false);
+        }}
+        title={`Do you want to delete "${book.title}"?`}
+        description="This action cannot be undone and will permanently remove the book from the database."
+      />
     </>
   );
 };

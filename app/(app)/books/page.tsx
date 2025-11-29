@@ -2,23 +2,26 @@
 
 import { getSessionData } from "@/api/auth";
 import { getBooks } from "@/api/books";
+import { deleteBook } from "@/api/books/deleteBook";
 import { BookCard } from "@/components/books/BookCard";
 import MainPagination from "@/components/books/MainPagination";
 import SearchSortControls from "@/components/books/SearchSortControlers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const BooksPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [bookOwnerId, setBookOwnerId] = useState<number | null>(null);
+  const [bookOwnerId] = useState<number | null>(null);
   const [sort, setSort] = useState<"asc" | "desc" | "none">("none");
 
   const debouncedSearch = useDebounce(search, 400);
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const {
@@ -38,17 +41,6 @@ const BooksPage = () => {
     staleTime: Infinity,
   });
 
-  const isAuthenticated = !!userData;
-
-  const showOwnerBooks = () => {
-    if (!bookOwnerId && isAuthenticated) {
-      setBookOwnerId(userData.id);
-    } else {
-      setBookOwnerId(null);
-    }
-    setPage(1);
-  };
-
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
@@ -58,6 +50,17 @@ const BooksPage = () => {
     setSort(value);
     setPage(1);
   };
+
+  const deleteBookMutation = useMutation({
+    mutationFn: (id: number) => deleteBook(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+      toast.success("Book deleted successfully!");
+    },
+    onError: (error) => {
+      toast.error(`Error deleting book: ${error.message || "Unknown error"}`);
+    },
+  });
 
   const renderContent = () => {
     if (isLoadingBooks) {
@@ -85,7 +88,13 @@ const BooksPage = () => {
     return (
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {booksData.books.map((book) => (
-          <BookCard key={book.id} book={book} userData={userData} />
+          <BookCard
+            key={book.id}
+            book={book}
+            userData={userData}
+            onDelete={() => deleteBookMutation.mutate(book.id)}
+            isDeleting={deleteBookMutation.isPending}
+          />
         ))}
       </div>
     );
