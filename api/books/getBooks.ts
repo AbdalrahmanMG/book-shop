@@ -7,7 +7,7 @@ interface GetBooksOptions {
   page?: number;
   pageSize?: number;
   search?: string;
-  sort?: "asc" | "desc" | "";
+  sort?: "asc" | "desc" | "none";
   bookOwnerId?: number | null;
 }
 
@@ -15,7 +15,7 @@ export async function getBooks({
   page = 1,
   pageSize = 10,
   search = "",
-  sort = "",
+  sort = "none",
   bookOwnerId = null,
 }: GetBooksOptions) {
   let books = await readJson<Book[]>("books.json");

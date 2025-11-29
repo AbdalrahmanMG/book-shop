@@ -1,21 +1,24 @@
 "use client";
 
+import { getSessionData } from "@/api/auth";
 import { getBooks } from "@/api/books";
+import { BookCard } from "@/components/books/BookCard";
+import MainPagination from "@/components/books/MainPagination";
+import SearchSortControls from "@/components/books/SearchSortControlers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { BookCard } from "@/components/books/BookCard";
-import { getSessionData } from "@/api/auth";
-import MainPagination from "@/components/books/MainPagination";
 
 const BooksPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [bookOwnerId, setBookOwnerId] = useState<number | null>(null);
-  const [sort, setSort] = useState<"asc" | "desc" | "">("");
+  const [sort, setSort] = useState<"asc" | "desc" | "none">("none");
 
+  const debouncedSearch = useDebounce(search, 400);
   const router = useRouter();
 
   const {
@@ -23,8 +26,8 @@ const BooksPage = () => {
     isLoading: isLoadingBooks,
     isError: isErrorBooks,
   } = useQuery({
-    queryKey: ["books", page, sort, bookOwnerId],
-    queryFn: () => getBooks({ page, pageSize: 10, sort, bookOwnerId }),
+    queryKey: ["books", page, debouncedSearch, sort, bookOwnerId],
+    queryFn: () => getBooks({ page, pageSize: 10, search: debouncedSearch, sort, bookOwnerId }),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 15,
   });
@@ -51,7 +54,7 @@ const BooksPage = () => {
     setPage(1);
   };
 
-  const handleSortChange = (value: "asc" | "desc" | "") => {
+  const handleSortChange = (value: "asc" | "desc" | "none") => {
     setSort(value);
     setPage(1);
   };
@@ -96,17 +99,17 @@ const BooksPage = () => {
             📚 Book Collection
           </CardTitle>
           <div className="flex gap-3">
-            <Button
-              onClick={showOwnerBooks}
-              variant={bookOwnerId ? "secondary" : "outline"}
-              disabled={!isAuthenticated}
-            >
-              {bookOwnerId ? "Show All Books" : "Show My Books"}
-            </Button>
             <Button onClick={() => router.push("/books/add")}>+ Add New Book</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          <SearchSortControls
+            setSearch={handleSearchChange}
+            sort={sort}
+            search={search}
+            setSort={handleSortChange}
+          />
+          {renderContent()}
           <MainPagination page={page} setPage={setPage} booksData={booksData} />
         </CardContent>
       </Card>
