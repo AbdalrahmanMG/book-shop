@@ -17,7 +17,7 @@ export type ErrorResponse = {
 
 export type LoginActionResponse = ErrorResponse | void;
 
-export async function loginAction(formData: FormData):Promise<LoginActionResponse> {
+export async function loginAction(formData: FormData): Promise<LoginActionResponse> {
   const data = Object.fromEntries(formData.entries());
 
   const validation = LoginSchema.safeParse(data);
