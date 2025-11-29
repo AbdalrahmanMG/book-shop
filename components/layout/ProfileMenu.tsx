@@ -18,10 +18,14 @@ import { SafeUserData } from "@/types";
 import { logoutAction } from "@/api/auth";
 
 interface ProfileMenuProps {
-  user: SafeUserData;
+  user: SafeUserData | null;
 }
 
 export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user }) => {
+  if (!user) {
+    return;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

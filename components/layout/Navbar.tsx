@@ -1,14 +1,9 @@
 import Link from "next/link";
-import { SafeUserData } from "@/types";
 import { ProfileMenu } from "./ProfileMenu";
+import { getSessionData } from "@/api/auth/getSessionData";
 
 const Navbar = async () => {
-  const user: SafeUserData = {
-    id: 1,
-    name: "Admin Books",
-    email: "admin@books.com",
-    image: "/berry1.png",
-  };
+  const user = await getSessionData();
 
   const navLinks = [
     { href: "/books", label: "Books Shop" },
