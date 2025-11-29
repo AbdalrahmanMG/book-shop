@@ -158,5 +158,15 @@
     "category": "Science",
     "ownerId": 1,
     "thumbnail": "/uploads/upload-1764453082973-353909160.jpg"
+  },
+  {
+    "id": 19,
+    "title": "dddeee",
+    "description": "eeeeeeeee",
+    "price": 88,
+    "author": "ddeeeee",
+    "category": "Technology",
+    "ownerId": 1,
+    "thumbnail": "/uploads/upload-1764456223750-435622753.png"
   }
 ]

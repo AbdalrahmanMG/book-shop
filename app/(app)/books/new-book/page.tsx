@@ -28,16 +28,41 @@ import { Loader2 } from "lucide-react";
 import { bookSchema } from "@/validation/auth";
 import { getSessionData } from "@/api/auth";
 import { toast } from "sonner";
+import { useState } from "react";
+import Image from "next/image";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const categories = ["Technology", "Science", "History", "Fantasy", "Biography"] as const;
 
 type FormInputData = z.infer<typeof bookSchema>;
 
+type FieldErrors = {
+  [K in keyof FormInputData]?: string[];
+};
+
+interface AddBookFailureResponse {
+  success: false;
+  message?: string;
+  fieldErrors?: FieldErrors;
+}
+
+function isAddBookFailureResponse(
+  result: any,
+): result is AddBookFailureResponse & { success: false; fieldErrors: FieldErrors } {
+  return (
+    result &&
+    result.success === false &&
+    typeof result.fieldErrors === "object" &&
+    result.fieldErrors !== null
+  );
+}
 export default function AddBookPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
-  // Fetch current user data for ownerId
   const { data: userData } = useQuery({
     queryKey: ["me"],
     queryFn: async () => getSessionData(),
@@ -49,11 +74,31 @@ export default function AddBookPage() {
       title: "",
       description: "",
       price: "",
-      thumbnail: undefined,
+      thumbnail: null,
       author: "",
       category: "Technology",
     },
+    mode: "onSubmit",
   });
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+
+    form.setValue("thumbnail", file as any, { shouldValidate: true });
+
+    if (file && file.size > MAX_FILE_SIZE) {
+      toast.error(`File size (${(file.size / (1024 * 1024)).toFixed(2)}MB) exceeds the 5MB limit.`);
+      setImagePreviewUrl(null);
+      return;
+    }
+
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreviewUrl(url);
+    } else {
+      setImagePreviewUrl(null);
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (data: FormInputData) => {
@@ -63,9 +108,14 @@ export default function AddBookPage() {
       fd.append("price", data.price);
       fd.append("author", data.author);
       fd.append("category", data.category);
-      fd.append("ownerId", String(userData?.id ?? 0));
-      fd.append("thumbnail", data.thumbnail);
-
+      const ownerId = userData?.id ?? 0;
+      if (ownerId === 0) {
+        throw new Error("User session data not available.");
+      }
+      fd.append("ownerId", String(ownerId));
+      if (data.thumbnail instanceof File) {
+        fd.append("thumbnail", data.thumbnail);
+      }
       return addBook(fd);
     },
     onSuccess: (result) => {
@@ -73,9 +123,24 @@ export default function AddBookPage() {
         queryClient.invalidateQueries({ queryKey: ["books"] });
         toast.success(`${result.book?.title} has been added.`);
 
+        if (imagePreviewUrl) {
+          URL.revokeObjectURL(imagePreviewUrl);
+        }
         router.push("/books");
       } else {
-        toast.error(result.message ?? "Faild to add the book");
+        if (isAddBookFailureResponse(result)) {
+          Object.keys(result.fieldErrors).forEach((key) => {
+            const field = key as keyof FormInputData;
+            // Now, result.fieldErrors is correctly typed as FieldErrors
+            form.setError(field, {
+              message: result.fieldErrors[field]?.[0] || "Invalid input",
+              type: "server",
+            });
+          });
+          toast.error("Please correct the highlighted errors.");
+        } else {
+          toast.error(result.message ?? "Failed to add the book");
+        }
       }
     },
     onError: (error) => {
@@ -91,6 +156,24 @@ export default function AddBookPage() {
     <>
       <div className="max-w-xl mx-auto p-6 md:p-10 bg-card rounded-xl shadow-lg mt-8">
         <h1 className="text-3xl font-extrabold mb-8 text-center text-primary">List a New Book</h1>
+
+        {/* 3. Image Preview Area */}
+        {imagePreviewUrl && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-3">Image Preview</h2>
+            {/*  */}
+            <div className="relative w-full h-64 border rounded-lg overflow-hidden bg-gray-100">
+              <Image
+                src={imagePreviewUrl}
+                alt="Book Thumbnail Preview"
+                fill
+                style={{ objectFit: "contain" }}
+                className="p-2"
+                unoptimized
+              />
+            </div>
+          </div>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -169,7 +252,7 @@ export default function AddBookPage() {
                 <FormItem>
                   <FormLabel>Price ($)</FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder="e.g., 19.99" {...field} value={field.value} />
+                    <Input type="text" placeholder="e.g., 19.99" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -179,15 +262,18 @@ export default function AddBookPage() {
             <FormField
               control={form.control}
               name="thumbnail"
-              render={({ field: { value, onChange, ...fieldProps } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Thumbnail Image</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      {...fieldProps}
-                      onChange={(e) => onChange(e.target.files ? e.target.files[0] : null)}
+                      accept={ALLOWED_MIME_TYPES.join(",")}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        field.onChange(file);
+                        handleThumbnailChange(e);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
