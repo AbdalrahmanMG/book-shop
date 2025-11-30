@@ -28,7 +28,7 @@ export async function getBooks({
     books = books.filter((book) => book.title.toLowerCase().includes(search.toLowerCase()));
   }
 
-  if (sort) {
+  if (sort !== "none") {
     books.sort((a, b) => {
       return sort === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title);
     });
