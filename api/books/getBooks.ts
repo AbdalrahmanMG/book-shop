@@ -13,7 +13,7 @@ interface GetBooksOptions {
 
 export async function getBooks({
   page = 1,
-  pageSize = 10,
+  pageSize = 12,
   search = "",
   sort = "none",
   bookOwnerId = null,

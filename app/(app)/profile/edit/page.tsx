@@ -76,7 +76,7 @@ export default function EditProfilePage() {
   if (isLoading || !user) return <div className="p-6 text-center text-lg">Loading...</div>;
 
   return (
-    <div className="container mx-auto max-w-lg py-10">
+    <div className="px-6 md:px-0 mx-auto max-w-lg py-10">
       <h1 className="text-3xl font-semibold mb-6">Edit Profile</h1>
 
       <Form {...form}>

@@ -30,7 +30,7 @@ const BooksPage = () => {
     isError: isErrorBooks,
   } = useQuery({
     queryKey: ["books", page, debouncedSearch, sort, bookOwnerId],
-    queryFn: () => getBooks({ page, pageSize: 10, search: debouncedSearch, sort, bookOwnerId }),
+    queryFn: () => getBooks({ page, pageSize: 12, search: debouncedSearch, sort, bookOwnerId }),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 15,
   });

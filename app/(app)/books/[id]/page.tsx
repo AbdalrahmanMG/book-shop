@@ -82,7 +82,7 @@ export default function BookDetailsPage() {
               <div className="flex flex-col">
                 <div className="flex flex-col ">
                   <p className="text-sm font-medium text-muted-foreground">Price</p>
-                  <p className="text-lg font-bold">{`$${book.price.toFixed(2)}`}</p>
+                  <p className="text-lg font-bold">{`$${(book.price as number).toFixed(2)}`}</p>
                 </div>
                 <div className="flex flex-col ">
                   <p className="text-sm font-medium text-muted-foreground">Category</p>

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { Book } from "@/types";
 import { updateBookSchema, UpdateBookFormData } from "@/validation/auth";
-import { BookForm, BookFormData } from "@/components/books/BookForm";
+import { BookForm } from "@/components/books/BookForm";
 
 interface ServerActionError {
   error: string;
