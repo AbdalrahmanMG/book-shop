@@ -34,7 +34,7 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user }) => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center gap-2 h-10 px-3 rounded-md hover:bg-gray-100/70 focus-visible:ring-0"
+          className="flex items-center gap-2 h-10 px-2 rounded-md hover:bg-gray-100/70 focus-visible:ring-0"
         >
           <Avatar className="h-8 w-8">
             {user.image ? (

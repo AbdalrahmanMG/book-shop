@@ -56,7 +56,12 @@ export const Navbar: React.FC = () => {
         </div>
         <div className="hidden md:flex items-center justify-between space-x-6 text-sm font-medium">
           {/* Desktop Profile Menu */}
-          {user && <ProfileMenu user={user} />}
+          {user && (
+            <>
+              <ModeToggle />
+              <ProfileMenu user={user} />
+            </>
+          )}
         </div>
 
         {/* Mobile Icons */}
