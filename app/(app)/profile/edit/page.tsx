@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { useEffect } from "react";
 import { getSessionData } from "@/api/auth/actions";
-import { updateProfileAction } from "@/api/profile";
+import { updateProfileAction } from "@/api/profile/actions";
 import { toast } from "sonner";
 
 const formSchema = z.object({

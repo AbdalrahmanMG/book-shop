@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { readJson } from "@/lib/helper/readJson";
 import { writeJson } from "@/lib/helper/writeJson";
 import { User } from "@/types";
-import { updateProfileAction } from "@/api/profile";
+import { updateProfileAction } from "@/api/profile/actions";
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
