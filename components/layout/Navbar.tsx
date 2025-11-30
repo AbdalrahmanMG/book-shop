@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProfileMenu } from "./ProfileMenu";
 import { getSessionData } from "@/api/auth";
+import { ModeToggle } from "../ModeToggle";
 
 const Navbar = async () => {
   const user = await getSessionData();
@@ -26,6 +27,7 @@ const Navbar = async () => {
         </div>
 
         <div className="flex items-center space-x-2">
+          <ModeToggle />
           <ProfileMenu user={user} />
         </div>
       </nav>
