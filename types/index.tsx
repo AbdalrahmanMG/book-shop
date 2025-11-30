@@ -11,7 +11,7 @@ export interface Book {
   id: number;
   title: string;
   description: string;
-  price: number;
+  price: number | string;
   thumbnail: string;
   author: string;
   category: categories;
@@ -25,5 +25,15 @@ export interface User {
   password: string;
   image?: string;
 }
+
+export type BookFormValues = {
+  id?: string;
+  title: string;
+  description: string;
+  author: string;
+  category: categories;
+  price: string;
+  thumbnail: File | string | null;
+};
 
 export type SafeUserData = Omit<User, "password">;

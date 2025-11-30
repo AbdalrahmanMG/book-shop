@@ -20,50 +20,53 @@ export const LoginSchema = z.object({
     .min(6, { message: "Password must be at least 6 characters." }),
 });
 
-export const bookSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Must be a valid price (e.g., 10.00)"),
-  thumbnail: z
-    .instanceof(File)
-    .or(z.null())
-    .refine((file) => file !== null, {
-      message: "Thumbnail file is required",
-    })
-    .refine((file) => file === null || file.size <= MAX_FILE_SIZE, {
-      message: "Max file size is 5MB",
-    })
-    .refine((file) => file === null || ALLOWED_MIME_TYPES.includes(file.type), {
-      message: "Only JPG, PNG, and WEBP formats allowed",
-    }),
-  author: z.string().min(1, "Author is required"),
-  category: z.string(),
-});
-
-export const baseBookSchema = z.object({
+const baseBookFields = {
   title: z.string().trim().min(1, "Title is required").max(255),
-  description: z.string().trim().min(10, "Description is required (min 10 chars).").max(5000),
+  description: z.string().trim().min(10, "Description is required (min 10 chars)").max(5000),
   author: z.string().trim().min(1, "Author is required").max(255),
-  category: z.enum(categories, "Category is required"),
+  category: z.enum(categories, { message: "Category is required" }),
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .regex(/^\d+(\.\d{1,2})?$/, "Must be a valid price (e.g., 10.00)"),
+};
 
-  price: z.coerce
-    .number("Price must be a number.")
-    .positive("Price must be a positive number.")
-    .transform((val) => Number(val.toFixed(2))),
-});
-
-export const updateBookSchema = baseBookSchema.partial().extend({
-  id: z.coerce.number().int().positive("ID must be a positive integer."),
+export const addBookSchema = z.object({
+  ...baseBookFields,
   thumbnail: z
-    .instanceof(File, { message: "Thumbnail must be a file object." })
+    .instanceof(File, { message: "Thumbnail file is required" })
     .refine((file) => file.size <= MAX_FILE_SIZE, {
-      message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`,
+      message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
     })
     .refine((file) => ALLOWED_MIME_TYPES.includes(file.type), {
-      message: "Only JPG, PNG, and WEBP formats allowed.",
+      message: "Only JPG, PNG, and WEBP formats allowed",
     })
+    .nullable()
+    .refine((file) => file !== null, {
+      message: "Thumbnail file is required",
+    }),
+});
+
+export const updateBookSchema = z.object({
+  ...baseBookFields,
+  id: z.string().min(1, "Book ID is required").optional(),
+  thumbnail: z
+    .union([
+      z
+        .instanceof(File)
+        .refine((file) => file.size <= MAX_FILE_SIZE, {
+          message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+        })
+        .refine((file) => ALLOWED_MIME_TYPES.includes(file.type), {
+          message: "Only JPG, PNG, and WEBP formats allowed",
+        }),
+      z.string(),
+    ])
+    .nullable()
     .optional(),
 });
 
-export type BaseBookData = z.infer<typeof baseBookSchema>;
-export type UpdateBookPayload = z.infer<typeof updateBookSchema>;
+export type AddBookFormData = z.infer<typeof addBookSchema>;
+export type UpdateBookFormData = z.infer<typeof updateBookSchema>;
+
+export const bookSchema = addBookSchema;

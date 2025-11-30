@@ -25,6 +25,7 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
 
   const dataToValidate = {
     id,
+    description: formData.get("description"),
     title: formData.get("title"),
     price: formData.get("price"),
     author: formData.get("author"),
@@ -32,6 +33,7 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
   };
 
   const validationResult = updateBookSchema.safeParse(dataToValidate);
+  console.log({ formData, validationResult });
 
   if (!validationResult.success) {
     return { error: validationResult.error.issues[0].message };
@@ -60,7 +62,7 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
     return { error: "Failed to access book data." };
   }
 
-  const index = books.findIndex((b) => b.id === bookId);
+  const index = books.findIndex((b) => String(b.id) === String(bookId));
   if (index === -1) {
     return { error: `Book with ID ${bookId} not found.` };
   }
