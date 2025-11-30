@@ -40,7 +40,7 @@
     "description": "A deep dive into JavaScript programming, covering both fundamental concepts and advanced techniques for modern developers."
   },
   {
-    "id": 6,
+    "id": 5,
     "title": "Deep Work",
     "price": 22,
     "thumbnail": "/thumbnails/Deep-Work.jpg",
@@ -50,7 +50,7 @@
     "description": "Explore strategies for focused work, eliminating distractions, and achieving higher productivity and personal satisfaction."
   },
   {
-    "id": 7,
+    "id": 6,
     "title": "The Lean Startup",
     "price": 28.5,
     "thumbnail": "/thumbnails/Lean-Startup.jpg",
@@ -60,7 +60,7 @@
     "description": "A modern approach to business innovation, teaching how to build startups efficiently through validated learning and rapid experimentation."
   },
   {
-    "id": 8,
+    "id": 7,
     "title": "Design Patterns",
     "price": 40,
     "thumbnail": "/thumbnails/Design-Patterns.jpg",
@@ -70,7 +70,7 @@
     "description": "A classic reference for software engineers, explaining common design patterns and how to solve recurring programming problems effectively."
   },
   {
-    "id": 9,
+    "id": 8,
     "title": "Hooked",
     "price": 19.99,
     "thumbnail": "/thumbnails/Hooked.jpg",
@@ -80,7 +80,7 @@
     "description": "Learn how successful companies create habit-forming products and the psychology behind user engagement."
   },
   {
-    "id": 10,
+    "id": 9,
     "title": "Thinking, Fast and Slow",
     "price": 24,
     "thumbnail": "/thumbnails/Thinking-Fast-Slow.jpg",
@@ -90,7 +90,7 @@
     "description": "A groundbreaking book on human decision-making, exploring the two systems of thought that drive our choices and behavior."
   },
   {
-    "id": 11,
+    "id": 10,
     "title": "You Don’t Know JS 00",
     "price": 30,
     "thumbnail": "/thumbnails/ydkjs.jpg",
@@ -100,8 +100,8 @@
     "description": "Delve deep into JavaScript mechanics, gaining insights into the language’s nuances and advanced programming techniques."
   },
   {
-    "id": 12,
-    "title": "Deep Work",
+    "id": 11,
+    "title": "Deep Work Advanced",
     "price": 22,
     "thumbnail": "/thumbnails/Deep-Work.jpg",
     "author": "Cal Newport",
@@ -110,8 +110,8 @@
     "description": "Learn how to focus intensely on cognitively demanding tasks and achieve higher productivity in an increasingly distracted world."
   },
   {
-    "id": 13,
-    "title": "The Lean Startup now",
+    "id": 12,
+    "title": "The Lean Startup Now",
     "price": 66,
     "thumbnail": "/thumbnails/Lean-Startup.jpg",
     "author": "Eric Ries",
@@ -120,8 +120,8 @@
     "description": "A practical guide for entrepreneurs, emphasizing experimentation, validated learning, and iterative product development."
   },
   {
-    "id": 14,
-    "title": "Design Patterns",
+    "id": 13,
+    "title": "Design Patterns Explained",
     "price": 40,
     "thumbnail": "/thumbnails/Design-Patterns.jpg",
     "author": "Erich Gamma",
@@ -130,8 +130,8 @@
     "description": "Covers 23 design patterns that help software developers write reusable and maintainable object-oriented code."
   },
   {
-    "id": 16,
-    "title": "Thinking, Fast and Slow",
+    "id": 14,
+    "title": "Thinking, Fast and Slow Advanced",
     "price": 24,
     "thumbnail": "/thumbnails/Thinking-Fast-Slow.jpg",
     "author": "Daniel Kahneman",
@@ -140,33 +140,194 @@
     "description": "An essential read on human psychology, illustrating how intuitive and deliberate thinking shape our decisions."
   },
   {
-    "id": 17,
-    "title": "Girl on the Train 11",
-    "price": "13",
+    "id": 15,
+    "title": "Girl on the Train",
+    "price": 13,
+    "thumbnail": "/thumbnails/71RRMyyQxWL._SL1500_.jpg",
     "author": "Paula Hawkins",
     "category": "Science",
     "ownerId": 1,
-    "thumbnail": "/uploads/upload-1764375057684-9781784161101-1-768x1199.jpg",
     "description": "A psychological thriller following a woman who becomes entangled in a missing-person investigation while riding the train every day."
+  },
+
+  {
+    "id": 16,
+    "title": "Sapiens: A Brief History of Humankind",
+    "price": 22,
+    "thumbnail": "/thumbnails/Sapiens.jpg",
+    "author": "Yuval Noah Harari",
+    "category": "History",
+    "ownerId": 1,
+    "description": "A thought-provoking exploration of human history, from the Stone Age to the modern age."
+  },
+  {
+    "id": 17,
+    "title": "Homo Deus: A Brief History of Tomorrow",
+    "price": 25,
+    "thumbnail": "/thumbnails/Homo-Deus.jpg",
+    "author": "Yuval Noah Harari",
+    "category": "Science",
+    "ownerId": 1,
+    "description": "Explores the future of humanity and the rise of artificial intelligence."
   },
   {
     "id": 18,
-    "title": "me book",
-    "description": "testing description",
-    "price": 200,
-    "author": "Abdo",
-    "category": "Science",
+    "title": "The Wright Brothers",
+    "price": 18,
+    "thumbnail": "/thumbnails/Wright-Brothers.jpg",
+    "author": "David McCullough",
+    "category": "History",
     "ownerId": 1,
-    "thumbnail": "/uploads/upload-1764453082973-353909160.jpg"
+    "description": "The story of the pioneers of aviation who changed the world."
+  },
+  {
+    "id": 19,
+    "title": "The Hobbit",
+    "price": 20,
+    "thumbnail": "/thumbnails/The-Hobbit.jpg",
+    "author": "J.R.R. Tolkien",
+    "category": "Fantasy",
+    "ownerId": 2,
+    "description": "A classic fantasy adventure following Bilbo Baggins on his journey through Middle-earth."
   },
   {
     "id": 20,
-    "title": "try56456 n",
-    "description": "dddddddd dd",
-    "price": "200",
-    "author": "d",
+    "title": "Steve Jobs",
+    "price": 35,
+    "thumbnail": "/thumbnails/Steve-Jobs.jpg",
+    "author": "Walter Isaacson",
     "category": "Technology",
     "ownerId": 1,
-    "thumbnail": "/uploads/upload-1764515458856-31695927.jpeg"
+    "description": "A biography chronicling the life and career of the Apple co-founder."
+  },
+  {
+    "id": 21,
+    "title": "A Short History of Nearly Everything",
+    "price": 28,
+    "thumbnail": "/thumbnails/41X4V11GGAL.jpg",
+    "author": "Bill Bryson",
+    "category": "Science",
+    "ownerId": 2,
+    "description": "A readable journey through scientific discoveries and the history of science."
+  },
+  {
+    "id": 22,
+    "title": "Guns, Germs, and Steel",
+    "price": 32,
+    "thumbnail": "/thumbnails/Guns-Germs-Steel.jpg",
+    "author": "Jared Diamond",
+    "category": "History",
+    "ownerId": 1,
+    "description": "Explores how environmental and geographical factors shaped the modern world."
+  },
+  {
+    "id": 23,
+    "title": "Harry Potter and the Sorcerer's Stone",
+    "price": 18,
+    "thumbnail": "/thumbnails/Harry-Potter-1.jpg",
+    "author": "J.K. Rowling",
+    "category": "Fantasy",
+    "ownerId": 2,
+    "description": "The first book in the Harry Potter series introducing the wizarding world."
+  },
+  {
+    "id": 24,
+    "title": "The Innovators",
+    "price": 30,
+    "thumbnail": "/thumbnails/The-Innovators.jpg",
+    "author": "Walter Isaacson",
+    "category": "Technology",
+    "ownerId": 1,
+    "description": "A history of the people who created the digital revolution."
+  },
+  {
+    "id": 25,
+    "title": "The Gene: An Intimate History",
+    "price": 28,
+    "thumbnail": "/thumbnails/The-Gene.jpg",
+    "author": "Siddhartha Mukherjee",
+    "category": "Science",
+    "ownerId": 2,
+    "description": "A fascinating exploration of genetics and the history of the gene."
+  },
+  {
+    "id": 26,
+    "title": "1776",
+    "price": 20,
+    "thumbnail": "/thumbnails/71dqX9I7ZKL._SL1500_.jpg",
+    "author": "David McCullough",
+    "category": "History",
+    "ownerId": 1,
+    "description": "A gripping account of the events of the year of America's independence."
+  },
+  {
+    "id": 27,
+    "title": "The Name of the Wind",
+    "price": 22,
+    "thumbnail": "/thumbnails/Name-of-the-Wind.jpg",
+    "author": "Patrick Rothfuss",
+    "category": "Fantasy",
+    "ownerId": 2,
+    "description": "The first book in an epic fantasy series about the legendary Kvothe."
+  },
+  {
+    "id": 28,
+    "title": "Elon Musk: Tesla, SpaceX, and the Quest for a Fantastic Future",
+    "price": 33,
+    "thumbnail": "/thumbnails/Elon-Musk.jpg",
+    "author": "Ashlee Vance",
+    "category": "Technology",
+    "ownerId": 1,
+    "description": "Biography of Elon Musk and his ventures in technology and space exploration."
+  },
+  {
+    "id": 29,
+    "title": "Cosmos",
+    "price": 25,
+    "thumbnail": "/thumbnails/Cosmos.jpg",
+    "author": "Carl Sagan",
+    "category": "Science",
+    "ownerId": 2,
+    "description": "A classic book exploring the universe and our place within it."
+  },
+  {
+    "id": 30,
+    "title": "The Silk Roads",
+    "price": 28,
+    "thumbnail": "/thumbnails/Silk-Roads.jpg",
+    "author": "Peter Frankopan",
+    "category": "History",
+    "ownerId": 1,
+    "description": "A new history of the world focusing on the importance of the Silk Road trade routes."
+  },
+  {
+    "id": 34,
+    "title": "History of Greece",
+    "price": 20,
+    "thumbnail": "/thumbnails/History-Greece.jpg",
+    "author": "Helen Troy",
+    "category": "History",
+    "ownerId": 1,
+    "description": "Ancient Greek history explained."
+  },
+  {
+    "id": 35,
+    "title": "The Kingdom of Fantasy",
+    "price": 25,
+    "thumbnail": "/thumbnails/Fantasy-Kingdoms.jpg",
+    "author": "Fiona Apple",
+    "category": "Fantasy",
+    "ownerId": 2,
+    "description": "Explore magical kingdoms and mystical lands."
+  },
+  {
+    "id": 36,
+    "title": "Tech Leaders",
+    "price": 42,
+    "thumbnail": "/thumbnails/Tech-Leaders.jpg",
+    "author": "Bill Gates",
+    "category": "Technology",
+    "ownerId": 1,
+    "description": "Biographies and insights from top tech leaders."
   }
 ]

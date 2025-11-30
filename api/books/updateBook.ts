@@ -33,7 +33,6 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
   };
 
   const validationResult = updateBookSchema.safeParse(dataToValidate);
-  console.log({ formData, validationResult });
 
   if (!validationResult.success) {
     return { error: validationResult.error.issues[0].message };

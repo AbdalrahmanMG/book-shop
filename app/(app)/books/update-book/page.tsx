@@ -67,8 +67,6 @@ export default function UpdateBookPage() {
 
   const mutation = useMutation({
     mutationFn: async (data: UpdateBookFormData) => {
-      console.log(data);
-
       const fd = new FormData();
       fd.append("title", data.title);
       fd.append("description", data.description);
@@ -79,10 +77,8 @@ export default function UpdateBookPage() {
       if (data.thumbnail) {
         if (data.thumbnail instanceof File) {
           fd.append("thumbnail", data.thumbnail);
-          console.log(data.thumbnail, "in (new File)");
         } else if (typeof data.thumbnail === "string") {
           fd.append("thumbnail", data.thumbnail);
-          console.log(data.thumbnail, "out (old string URL)");
         }
       } else {
         fd.append("thumbnail", "");
@@ -107,8 +103,6 @@ export default function UpdateBookPage() {
   });
 
   const onSubmit = (data: UpdateBookFormData) => {
-    console.log({ data });
-
     mutation.mutate(data);
   };
 
