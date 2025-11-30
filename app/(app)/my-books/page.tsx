@@ -1,8 +1,8 @@
 "use client";
 
 import { getSessionData } from "@/api/auth/actions";
-import { getBooks } from "@/api/books";
-import { deleteBook } from "@/api/books/deleteBook";
+import { getBooks } from "@/api/books/actions";
+import { deleteBook } from "@/api/books/actions";
 import { BookCard } from "@/components/books/BookCard";
 import MainPagination from "@/components/books/MainPagination";
 import SearchSortControls from "@/components/books/SearchSortControlers";

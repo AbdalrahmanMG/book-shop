@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getBookDetails, updateBook } from "@/api/books";
+import { getBookDetails, updateBook } from "@/api/books/actions";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";

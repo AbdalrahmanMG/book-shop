@@ -4,7 +4,7 @@ import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { addBook } from "@/api/books";
+import { addBook } from "@/api/books/actions";
 import { toast } from "sonner";
 import { getSessionData } from "@/api/auth/actions";
 import { addBookSchema, AddBookFormData } from "@/validation/auth";

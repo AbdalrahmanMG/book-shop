@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getBookDetails } from "@/api/books/getBookDetails";
+import { getBookDetails } from "@/api/books/actions";
 import { readJson } from "@/lib/helper/readJson";
 import type { Book } from "@/types";
 

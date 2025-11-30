@@ -53,6 +53,9 @@ const LoginForm = () => {
         } else {
           setRootError(res.error);
         }
+      } else {
+        setRootError(null);
+        form.clearErrors();
       }
     });
   };

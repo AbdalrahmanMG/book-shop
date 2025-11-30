@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
-import { deleteBook } from "@/api/books/deleteBook";
+import { deleteBook } from "@/api/books/actions";
 import { readJson } from "@/lib/helper/readJson";
 import { writeJson } from "@/lib/helper/writeJson";
 import type { Book } from "@/types";
