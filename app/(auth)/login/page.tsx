@@ -18,9 +18,11 @@ export default function LoginPage() {
       <LoginForm />
 
       {/* Note for testing */}
-      <p className="mt-8 text-sm text-muted-foreground text-center max-w-sm">
+      <p className="mt-8 text-sm text-muted-foreground dark:text-gray-700 text-center max-w-sm">
         Use:
-        <span className="font-mono text-primary/80 block">admin@books.com / admin123</span>
+        <span className="font-mono text-primary/80 dark:text-gray-900 block">
+          admin@books.com / admin123
+        </span>
         to test the login.
       </p>
     </div>
