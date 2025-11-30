@@ -69,7 +69,7 @@ export default function AddBookPage() {
       if (ownerId === 0) {
         throw new Error("User session data not available.");
       }
-      fd.append("ownerId", String(ownerId));
+      fd.append("owner_id", String(ownerId));
       if (data.thumbnail instanceof File) {
         fd.append("thumbnail", data.thumbnail);
       }
