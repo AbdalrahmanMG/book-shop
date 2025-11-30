@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,7 @@ import {
 import { useEffect } from "react";
 import { getSessionData } from "@/api/auth";
 import { updateProfileAction } from "@/api/profile";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 chars"),
@@ -28,6 +29,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["me"],
@@ -55,8 +57,19 @@ export default function EditProfilePage() {
     mutationFn: async (data: FormValues) => {
       return await updateProfileAction(data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data && "error" in data) {
+        toast.error(`Failed to update profile: ${data.error}`);
+        return;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      toast.success("Profile updated successfully");
+
       router.push("/profile");
+    },
+    onError: (error) => {
+      toast.error(`Failed to profile updated: ${error.message || "Unknown error"}`);
     },
   });
 
