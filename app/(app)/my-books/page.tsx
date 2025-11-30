@@ -108,7 +108,7 @@ const MyBookPage = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-3xl font-extrabold tracking-tight">
-            📚 Book Collection
+            📚 My-Book Collection
           </CardTitle>
           <div className="flex gap-3">
             <Button onClick={() => router.push("/books/new-book")}>+ Add New Book</Button>

@@ -18,7 +18,7 @@ import { SafeUserData } from "@/types";
 import { logoutAction } from "@/api/auth";
 
 interface ProfileMenuProps {
-  user: SafeUserData | null;
+  user?: SafeUserData | null;
 }
 
 export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user }) => {
@@ -29,7 +29,10 @@ export const ProfileMenu: React.FC<ProfileMenuProps> = ({ user }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-9 px-3 data-[state=open]:bg-gray-100/70">
+        <Button
+          variant="ghost"
+          className="h-9 px-3 data-[state=open]:bg-gray-100/70 focus-visible:ring-0"
+        >
           <Avatar className="h-8 w-8 mr-2">
             {user.image ? (
               <AvatarImage src={user.image} alt={user.name} />

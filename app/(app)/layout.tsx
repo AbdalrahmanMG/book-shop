@@ -8,8 +8,10 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      <Navbar />
-      <QueryProviderWrapper>{children}</QueryProviderWrapper>
+      <QueryProviderWrapper>
+        <Navbar />
+        {children}
+      </QueryProviderWrapper>
     </div>
   );
 }
