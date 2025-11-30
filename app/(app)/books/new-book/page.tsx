@@ -79,7 +79,7 @@ export default function AddBookPage() {
       if (result?.success) {
         queryClient.invalidateQueries({ queryKey: ["books"] });
         toast.success(`${result.book?.title} has been added.`);
-        router.push("/books");
+        router.push("/my-books");
       } else {
         if (isAddBookFailureResponse(result)) {
           Object.keys(result.fieldErrors).forEach((key) => {

@@ -98,7 +98,7 @@ export default function UpdateBookPage() {
         queryClient.invalidateQueries({ queryKey: ["books"] });
         queryClient.invalidateQueries({ queryKey: ["book", bookId] });
         toast.success(`${result?.title} has been updated.`);
-        router.push("/books");
+        router.back();
       }
     },
     onError: (error) => {

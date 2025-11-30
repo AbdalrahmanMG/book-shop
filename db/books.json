@@ -141,10 +141,10 @@
   },
   {
     "id": 17,
-    "title": "Girl on the Train",
-    "price": 13,
+    "title": "Girl on the Train 11",
+    "price": "13",
     "author": "Paula Hawkins",
-    "category": "Fantasy",
+    "category": "Science",
     "ownerId": 1,
     "thumbnail": "/uploads/upload-1764375057684-9781784161101-1-768x1199.jpg",
     "description": "A psychological thriller following a woman who becomes entangled in a missing-person investigation while riding the train every day."
@@ -168,5 +168,15 @@
     "category": "Technology",
     "ownerId": 1,
     "thumbnail": "/uploads/upload-1764515458856-31695927.jpeg"
+  },
+  {
+    "id": 21,
+    "title": "poioyuoiuo",
+    "description": "oj skdjk d sfdf ss",
+    "price": 88,
+    "author": "dfsdf",
+    "category": "Technology",
+    "ownerId": 1,
+    "thumbnail": "/uploads/upload-1764516464225-622946814.webp"
   }
 ]
