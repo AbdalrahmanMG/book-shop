@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { addBook } from "@/api/books";
 import { toast } from "sonner";
-import { getSessionData } from "@/api/auth";
+import { getSessionData } from "@/api/auth/actions";
 import { addBookSchema, AddBookFormData } from "@/validation/auth";
 import { BookForm, BookFormData } from "@/components/books/BookForm";
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
 import type { User, SafeUserData } from "@/types";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { getSessionData } from "@/api/auth/getSessionData";
+import { getSessionData } from "@/api/auth/actions";
 import { readJson } from "@/lib/helper/readJson";
 import { sanitizeUser } from "@/lib/helper/sanitizeUser";
 

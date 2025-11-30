@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { loginAction } from "@/api/auth/loginAction";
+import { loginAction } from "@/api/auth/actions";
 import { LoginSchema } from "@/validation/auth";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 

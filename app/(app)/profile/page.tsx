@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { getSessionData } from "@/api/auth";
+import { getSessionData } from "@/api/auth/actions";
 
 export default function ProfilePage() {
   const {

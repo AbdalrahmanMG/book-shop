@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, Frown, ArrowLeft } from "lucide-react";
 import { getBookDetails } from "@/api/books/getBookDetails";
 import { deleteBook } from "@/api/books/deleteBook";
-import { getSessionData } from "@/api/auth";
+import { getSessionData } from "@/api/auth/actions";
 import { Button } from "@/components/ui/button";
 import { DeleteModal } from "@/components/books/DeleteModal";
 import { BookActions } from "@/components/books/BookActions";

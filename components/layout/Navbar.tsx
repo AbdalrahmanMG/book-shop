@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "../ModeToggle";
 import { ProfileMenu } from "./ProfileMenu";
-import { getSessionData } from "@/api/auth";
+import { getSessionData } from "@/api/auth/actions";
 
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { logoutAction } from "@/api/auth";
+import { logoutAction } from "@/api/auth/actions";
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();

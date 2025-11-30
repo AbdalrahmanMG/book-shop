@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { logoutAction } from "@/api/auth/logoutAction";
+import { logoutAction } from "@/api/auth/actions";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 vi.mock("next/headers", () => ({

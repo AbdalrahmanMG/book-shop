@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import LoginForm from "@/components/login/LoginForm";
-import { loginAction } from "@/api/auth";
+import * as authActions from "@/api/auth/actions";
 
-vi.mock("@/api/auth", () => ({
+vi.mock("@/api/auth/actions", () => ({
   loginAction: vi.fn(),
 }));
 
@@ -38,7 +38,8 @@ describe("LoginForm", () => {
 
   it("should call loginAction with correct data on submit", async () => {
     const user = userEvent.setup();
-    vi.mocked(loginAction).mockResolvedValue(undefined);
+    const mockLoginAction = vi.mocked(authActions.loginAction);
+    mockLoginAction.mockResolvedValue(undefined);
 
     render(<LoginForm />);
 
@@ -51,17 +52,18 @@ describe("LoginForm", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(loginAction).toHaveBeenCalledWith(expect.any(FormData));
+      expect(mockLoginAction).toHaveBeenCalledWith(expect.any(FormData));
     });
 
-    const formData = vi.mocked(loginAction).mock.calls[0][0] as FormData;
+    const formData = mockLoginAction.mock.calls[0][0] as FormData;
     expect(formData.get("email")).toBe("test@example.com");
     expect(formData.get("password")).toBe("password123");
   });
 
   it("should show error message when login fails", async () => {
     const user = userEvent.setup();
-    vi.mocked(loginAction).mockResolvedValue({
+    const mockLoginAction = vi.mocked(authActions.loginAction);
+    mockLoginAction.mockResolvedValue({
       error: "Invalid credentials",
     });
 
@@ -82,7 +84,8 @@ describe("LoginForm", () => {
 
   it("should show server field errors when validation fails on server", async () => {
     const user = userEvent.setup();
-    vi.mocked(loginAction).mockResolvedValue({
+    const mockLoginAction = vi.mocked(authActions.loginAction);
+    mockLoginAction.mockResolvedValue({
       error: "Validation Failed",
       fieldErrors: {
         email: ["Invalid email format"],
@@ -108,7 +111,8 @@ describe("LoginForm", () => {
 
   it("should disable submit button while submitting", async () => {
     const user = userEvent.setup();
-    vi.mocked(loginAction).mockImplementation(
+    const mockLoginAction = vi.mocked(authActions.loginAction);
+    mockLoginAction.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve(undefined), 100)),
     );
 
@@ -130,7 +134,9 @@ describe("LoginForm", () => {
 
   it("should clear previous errors on new submit", async () => {
     const user = userEvent.setup();
-    vi.mocked(loginAction).mockResolvedValueOnce({
+    const mockLoginAction = vi.mocked(authActions.loginAction);
+
+    mockLoginAction.mockResolvedValueOnce({
       error: "First error",
     });
 
@@ -148,7 +154,7 @@ describe("LoginForm", () => {
       expect(screen.getByText("First error")).toBeInTheDocument();
     });
 
-    vi.mocked(loginAction).mockResolvedValueOnce(undefined);
+    mockLoginAction.mockResolvedValueOnce(undefined);
     await user.click(submitButton);
 
     await waitFor(() => {

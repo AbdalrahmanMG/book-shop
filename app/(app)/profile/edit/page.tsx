@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useEffect } from "react";
-import { getSessionData } from "@/api/auth";
+import { getSessionData } from "@/api/auth/actions";
 import { updateProfileAction } from "@/api/profile";
 import { toast } from "sonner";
 

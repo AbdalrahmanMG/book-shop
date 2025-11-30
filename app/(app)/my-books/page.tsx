@@ -1,6 +1,6 @@
 "use client";
 
-import { getSessionData } from "@/api/auth";
+import { getSessionData } from "@/api/auth/actions";
 import { getBooks } from "@/api/books";
 import { deleteBook } from "@/api/books/deleteBook";
 import { BookCard } from "@/components/books/BookCard";

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { SafeUserData } from "@/types";
-import { logoutAction } from "@/api/auth";
+import { logoutAction } from "@/api/auth/actions";
 
 interface ProfileMenuProps {
   user?: SafeUserData | null;
