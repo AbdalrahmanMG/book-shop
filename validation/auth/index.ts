@@ -4,9 +4,20 @@ const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const categories = ["Technology", "Science", "History", "Fantasy", "Biography"] as const;
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 export const LoginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  email: z
+    .string({ message: "Email is required." })
+    .min(1, { message: "Email is required." })
+    .trim()
+    .toLowerCase()
+    .email({ message: "Invalid email address." })
+    .regex(EMAIL_REGEX, { message: "Invalid email address." }),
+  password: z
+    .string({ message: "Password is required." })
+    .min(1, { message: "Password is required." })
+    .min(6, { message: "Password must be at least 6 characters." }),
 });
 
 export const bookSchema = z.object({

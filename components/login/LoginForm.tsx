@@ -26,6 +26,8 @@ const LoginForm = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
     defaultValues: { email: "", password: "" },
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
 
   const [isPending, startTransition] = React.useTransition();
