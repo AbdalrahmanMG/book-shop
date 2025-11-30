@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <div className="hidden md:flex items-center justify-between space-x-6 text-sm font-medium">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
             return (
@@ -53,7 +53,8 @@ export const Navbar: React.FC = () => {
               </Button>
             );
           })}
-
+        </div>
+        <div className="hidden md:flex items-center justify-between space-x-6 text-sm font-medium">
           {/* Desktop Profile Menu */}
           {user && <ProfileMenu user={user} />}
         </div>
