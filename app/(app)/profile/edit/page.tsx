@@ -57,13 +57,13 @@ export default function EditProfilePage() {
     mutationFn: async (data: FormValues) => {
       return await updateProfileAction(data);
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data && "error" in data) {
         toast.error(`Failed to update profile: ${data.error}`);
         return;
       }
 
-      queryClient.invalidateQueries({ queryKey: ["me"] });
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success("Profile updated successfully");
 
       router.push("/profile");
