@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Frown } from "lucide-react";
+import { Loader2, Frown, ArrowLeft } from "lucide-react";
 import { getBookDetails } from "@/api/books/getBookDetails";
+import { Button } from "@/components/ui/button";
 
 export default function BookDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
 
   const bookId = Number(id);
@@ -53,6 +55,14 @@ export default function BookDetailsPage() {
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-6xl">
+      <Button
+        variant="outline"
+        className="mb-6 flex items-center gap-2"
+        onClick={() => router.back()}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Button>
       <Card className="shadow-xl">
         <CardContent className="p-6 md:p-10">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
