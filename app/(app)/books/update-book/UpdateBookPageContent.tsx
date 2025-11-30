@@ -55,17 +55,19 @@ export default function UpdateBookPageContent() {
 
   useEffect(() => {
     if (bookData) {
-      form.reset({
-        id: String(bookId),
-        title: bookData.title,
-        description: bookData.description,
-        price: String(bookData.price),
-        author: bookData.author,
-        category: bookData.category,
-        thumbnail: bookData.thumbnail || null,
-      });
+      setTimeout(() => {
+        form.reset({
+          id: String(bookId),
+          title: bookData.title,
+          description: bookData.description,
+          price: String(bookData.price),
+          author: bookData.author,
+          category: bookData.category,
+          thumbnail: bookData.thumbnail || null,
+        });
+      }, 0);
     }
-  }, [bookData, form, bookId]);
+  }, [bookData, bookId]);
 
   const mutation = useMutation({
     mutationFn: async (data: UpdateBookFormData) => {
