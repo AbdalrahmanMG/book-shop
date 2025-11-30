@@ -34,14 +34,12 @@ const LoginForm = () => {
   const onSubmit = (values: LoginFormValues) => {
     setRootError(null);
 
-    const formElement = document.getElementById("login-form") as HTMLFormElement;
-    if (!formElement) {
-      setRootError("Form not found.");
-      return;
-    }
+    const formData = new FormData();
+    formData.append("email", values.email);
+    formData.append("password", values.password);
 
     startTransition(async () => {
-      const res = (await loginAction(new FormData(formElement))) as LoginActionResponse;
+      const res = (await loginAction(formData)) as LoginActionResponse;
 
       if (res && "error" in res) {
         if ("fieldErrors" in res && res.fieldErrors) {

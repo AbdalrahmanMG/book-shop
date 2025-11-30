@@ -49,13 +49,17 @@ interface AddBookFailureResponse {
 }
 
 function isAddBookFailureResponse(
-  result: any,
+  result: unknown,
 ): result is AddBookFailureResponse & { success: false; fieldErrors: FieldErrors } {
+  if (typeof result !== "object" || result === null) {
+    return false;
+  }
+
+  const potentialError = result as { success?: boolean; fieldErrors?: unknown };
   return (
-    result &&
-    result.success === false &&
-    typeof result.fieldErrors === "object" &&
-    result.fieldErrors !== null
+    potentialError.success === false &&
+    typeof potentialError.fieldErrors === "object" &&
+    potentialError.fieldErrors !== null
   );
 }
 export default function AddBookPage() {

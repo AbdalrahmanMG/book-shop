@@ -10,6 +10,18 @@ const eslintConfig = defineConfig([
   ...nextTs,
   ...pluginQuery.configs["flat/recommended"],
   {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_", // Ignore function arguments starting with '_'
+          varsIgnorePattern: "^_", // Ignore variables starting with '_' (This fixes the '_ is assigned' warning)
+          caughtErrorsIgnorePattern: "^_", // Ignore catch block variables starting with '_'
+        },
+      ],
+    },
+  },
+  {
     plugins: {
       prettier: prettierPlugin,
     },

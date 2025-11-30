@@ -1,6 +1,6 @@
 import { User } from "@/types";
 
 export function sanitizeUser(user: User) {
-  const { password, ...safe } = user;
+  const { password: _, ...safe } = user;
   return safe;
 }

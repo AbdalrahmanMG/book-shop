@@ -22,8 +22,10 @@ export async function updateProfileAction(data: {
   let users: User[];
   try {
     users = await readJson<User[]>("users.json");
-  } catch (err) {
-    return { error: "Failed to read user data file." };
+  } catch (error: Error | unknown) {
+    const err = error as { response?: { data?: { message?: string } } };
+
+    return { error: `Failed to read user data file: ${err}` };
   }
 
   const index = users.findIndex((u) => String(u.id) === String(userId));
@@ -42,8 +44,9 @@ export async function updateProfileAction(data: {
   try {
     users[index] = updatedUser;
     await writeJson("users.json", users);
-  } catch (err) {
-    return { error: "Failed to save updated user data." };
+  } catch (error: Error | unknown) {
+    const err = error as { response?: { data?: { message?: string } } };
+    return { error: `Failed to save updated user data: ${err}` };
   }
 
   return updatedUser;
