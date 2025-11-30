@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getBookDetails, updateBook } from "@/api/books"; // Assuming getBookDetails is your fetching function
+import { getBookDetails, updateBook } from "@/api/books";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -145,7 +145,7 @@ export default function UpdateBookPage() {
         queryClient.invalidateQueries({ queryKey: ["books"] });
         queryClient.invalidateQueries({ queryKey: ["book", bookId] });
 
-        toast.success(`${result.title} has been updated.`);
+        toast.success(`${result?.title} has been updated.`);
 
         if (imagePreviewUrl) {
           URL.revokeObjectURL(imagePreviewUrl);

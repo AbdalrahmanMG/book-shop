@@ -5,11 +5,19 @@ import { uploadImage } from "@/lib/helper/uploadImages";
 import { writeJson } from "@/lib/helper/writeJson";
 import { Book } from "@/types";
 import { updateBookSchema } from "@/validation/auth";
+import { cookies } from "next/headers";
 import z from "zod";
 
 type ValidatedUpdateData = z.output<typeof updateBookSchema>;
+const AUTH_COOKIE_NAME = "auth";
 
 export async function updateBook(formData: FormData): Promise<Book | { error: string }> {
+  const cookiesStore = await cookies();
+  const userCookies = cookiesStore.get(AUTH_COOKIE_NAME);
+
+  if (!userCookies) {
+    return { error: "Authentication cookie not found." };
+  }
   const id = formData.get("id");
   if (!id) {
     return { error: "Book ID is missing." };

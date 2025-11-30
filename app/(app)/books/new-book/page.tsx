@@ -119,7 +119,7 @@ export default function AddBookPage() {
       return addBook(fd);
     },
     onSuccess: (result) => {
-      if (result.success) {
+      if (result?.success) {
         queryClient.invalidateQueries({ queryKey: ["books"] });
         toast.success(`${result.book?.title} has been added.`);
 
@@ -139,7 +139,7 @@ export default function AddBookPage() {
           });
           toast.error("Please correct the highlighted errors.");
         } else {
-          toast.error(result.message ?? "Failed to add the book");
+          toast.error(result?.message ?? "Failed to add the book");
         }
       }
     },

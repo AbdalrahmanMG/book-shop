@@ -4,6 +4,7 @@ import { readJson } from "@/lib/helper/readJson";
 import { uploadImage } from "@/lib/helper/uploadImages";
 import { writeJson } from "@/lib/helper/writeJson";
 import { Book, categories, VALID_BOOK_CATEGORIES } from "@/types";
+import { cookies } from "next/headers";
 
 type AddBookResult = {
   success: boolean;
@@ -12,8 +13,15 @@ type AddBookResult = {
 };
 
 const VALID_CATEGORIES: string[] = Object.values(VALID_BOOK_CATEGORIES);
+const AUTH_COOKIE_NAME = "auth";
 
 export async function addBook(formData: FormData): Promise<AddBookResult> {
+  const cookiesStore = await cookies();
+  const userCookies = cookiesStore.get(AUTH_COOKIE_NAME);
+
+  if (!userCookies) {
+    return { success: false, message: "Authentication cookie not found." };
+  }
   try {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;

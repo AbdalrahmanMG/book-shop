@@ -3,13 +3,23 @@
 import { readJson } from "@/lib/helper/readJson";
 import { writeJson } from "@/lib/helper/writeJson";
 import { Book } from "@/types";
+import { cookies } from "next/headers";
 
 type DeleteResult = {
   success: boolean;
   message: string;
 };
 
+const AUTH_COOKIE_NAME = "auth";
+
 export async function deleteBook(id: number): Promise<DeleteResult> {
+  const cookiesStore = await cookies();
+  const userCookies = cookiesStore.get(AUTH_COOKIE_NAME);
+
+  if (!userCookies) {
+    return { success: false, message: "Authentication cookie not found." };
+  }
+
   if (typeof id !== "number" || id <= 0) {
     return {
       success: false,
