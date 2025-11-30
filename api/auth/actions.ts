@@ -1,12 +1,11 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { User, SafeUserData } from "@/types";
+import { SafeUserData } from "@/types";
 import { sanitizeUser } from "@/lib/helper/sanitizeUser";
-import { readJson } from "@/lib/helper/readJson";
 import { redirect } from "next/navigation";
 import { LoginSchema } from "@/validation/auth";
-import mockUsers from "@/db/users.json";
+import { supabase } from "@/lib/supabase";
 
 const AUTH_COOKIE_NAME = "auth";
 
@@ -30,17 +29,20 @@ export async function getSessionData(): Promise<SafeUserData | null> {
   }
 
   try {
-    const users = await readJson<User[]>("users.json");
-    const user = users.find((u: User) => String(u.id) === String(userId));
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
 
-    if (!user) {
+    if (error || !user) {
       cookiesStore.delete(AUTH_COOKIE_NAME);
       return null;
     }
 
     return sanitizeUser(user);
   } catch (error) {
-    console.error("Error reading users file or finding user:", error);
+    console.error("Error fetching user:", error);
     cookiesStore.delete(AUTH_COOKIE_NAME);
     return null;
   }
@@ -57,13 +59,19 @@ export async function loginAction(formData: FormData): Promise<LoginActionRespon
       fieldErrors: validation.error.flatten().fieldErrors,
     };
   }
+
   const { email, password } = validation.data;
 
-  const users: User[] = mockUsers as User[];
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .eq("password", password)
+    .single();
 
-  const user = users.find((user: User) => user.email === email && user.password === password);
+  console.log("Supabase response:", { user, error });
 
-  if (!user) {
+  if (error || !user) {
     return { error: "Invalid credentials" };
   }
 
