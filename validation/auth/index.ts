@@ -2,6 +2,7 @@ import z from "zod";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const categories = ["Technology", "Science", "History", "Fantasy", "Biography"] as const;
 
 export const LoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -27,3 +28,31 @@ export const bookSchema = z.object({
   author: z.string().min(1, "Author is required"),
   category: z.string(),
 });
+
+export const baseBookSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(255),
+  description: z.string().trim().min(10, "Description is required (min 10 chars).").max(5000),
+  author: z.string().trim().min(1, "Author is required").max(255),
+  category: z.enum(categories, "Category is required"),
+
+  price: z.coerce
+    .number("Price must be a number.")
+    .positive("Price must be a positive number.")
+    .transform((val) => Number(val.toFixed(2))),
+});
+
+export const updateBookSchema = baseBookSchema.partial().extend({
+  id: z.coerce.number().int().positive("ID must be a positive integer."),
+  thumbnail: z
+    .instanceof(File, { message: "Thumbnail must be a file object." })
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: `Max file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`,
+    })
+    .refine((file) => ALLOWED_MIME_TYPES.includes(file.type), {
+      message: "Only JPG, PNG, and WEBP formats allowed.",
+    })
+    .optional(),
+});
+
+export type BaseBookData = z.infer<typeof baseBookSchema>;
+export type UpdateBookPayload = z.infer<typeof updateBookSchema>;

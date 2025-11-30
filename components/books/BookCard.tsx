@@ -23,7 +23,7 @@ export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookC
   const isOwner = userData && userData.id === book.ownerId;
 
   const handleEdit = () => {
-    router.push(`/books/update?id=${book.id}`);
+    router.push(`/books/update-book?id=${book.id}`);
   };
 
   const handleView = () => {

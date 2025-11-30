@@ -6,7 +6,7 @@ import z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -22,50 +22,60 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { addBook } from "@/api/books";
+import { getBookDetails, updateBook } from "@/api/books"; // Assuming getBookDetails is your fetching function
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { bookSchema } from "@/validation/auth";
-import { getSessionData } from "@/api/auth";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Book } from "@/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const categories = ["Technology", "Science", "History", "Fantasy", "Biography"] as const;
 
+const bookSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format (e.g., 19.99)"),
+  author: z.string().min(1, "Author is required"),
+  category: z.enum(categories, "Category is required"),
+  thumbnail: z
+    .union([z.instanceof(File), z.string()])
+    .nullable()
+    .optional(),
+});
+
 type FormInputData = z.infer<typeof bookSchema>;
 
-type FieldErrors = {
-  [K in keyof FormInputData]?: string[];
-};
-
-interface AddBookFailureResponse {
-  success: false;
-  message?: string;
-  fieldErrors?: FieldErrors;
+interface ServerActionError {
+  error: string;
 }
 
-function isAddBookFailureResponse(
-  result: any,
-): result is AddBookFailureResponse & { success: false; fieldErrors: FieldErrors } {
-  return (
-    result &&
-    result.success === false &&
-    typeof result.fieldErrors === "object" &&
-    result.fieldErrors !== null
-  );
+function isServerError(result: Book | ServerActionError): result is ServerActionError {
+  return (result as ServerActionError).error !== undefined;
 }
-export default function AddBookPage() {
+
+export default function UpdateBookPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const bookId = Number(searchParams.get("id"));
+
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
-  const { data: userData } = useQuery({
-    queryKey: ["me"],
-    queryFn: async () => getSessionData(),
+  const {
+    data: bookData,
+    isLoading: isBookLoading,
+    isError: isBookError,
+  } = useQuery({
+    queryKey: ["book", bookId],
+    queryFn: async () => getBookDetails(bookId),
+    enabled: !!bookId,
   });
 
   const form = useForm<FormInputData>({
@@ -74,12 +84,25 @@ export default function AddBookPage() {
       title: "",
       description: "",
       price: "",
-      thumbnail: null,
       author: "",
       category: "Technology",
+      thumbnail: null,
     },
     mode: "onSubmit",
   });
+
+  useEffect(() => {
+    if (bookData) {
+      form.reset({
+        title: bookData.title,
+        description: bookData.description,
+        price: String(bookData.price),
+        author: bookData.author,
+        category: bookData.category,
+        thumbnail: bookData.thumbnail,
+      });
+    }
+  }, [bookData, form]);
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -108,43 +131,30 @@ export default function AddBookPage() {
       fd.append("price", data.price);
       fd.append("author", data.author);
       fd.append("category", data.category);
-      const ownerId = userData?.id ?? 0;
-      if (ownerId === 0) {
-        throw new Error("User session data not available.");
-      }
-      fd.append("ownerId", String(ownerId));
+      fd.append("id", String(bookId));
       if (data.thumbnail instanceof File) {
         fd.append("thumbnail", data.thumbnail);
       }
-      return addBook(fd);
+
+      return updateBook(fd);
     },
     onSuccess: (result) => {
-      if (result.success) {
+      if (isServerError(result)) {
+        toast.error(result.error);
+      } else {
         queryClient.invalidateQueries({ queryKey: ["books"] });
-        toast.success(`${result.book?.title} has been added.`);
+        queryClient.invalidateQueries({ queryKey: ["book", bookId] });
+
+        toast.success(`${result.title} has been updated.`);
 
         if (imagePreviewUrl) {
           URL.revokeObjectURL(imagePreviewUrl);
         }
         router.push("/books");
-      } else {
-        if (isAddBookFailureResponse(result)) {
-          Object.keys(result.fieldErrors).forEach((key) => {
-            const field = key as keyof FormInputData;
-            // Now, result.fieldErrors is correctly typed as FieldErrors
-            form.setError(field, {
-              message: result.fieldErrors[field]?.[0] || "Invalid input",
-              type: "server",
-            });
-          });
-          toast.error("Please correct the highlighted errors.");
-        } else {
-          toast.error(result.message ?? "Failed to add the book");
-        }
       }
     },
     onError: (error) => {
-      toast.error(`Could not add book: ${error.message}.`);
+      toast.error(`Could not update book: ${error.message}.`);
     },
   });
 
@@ -152,18 +162,44 @@ export default function AddBookPage() {
     mutation.mutate(data);
   };
 
+  const initialThumbnailUrl = bookData?.thumbnail || null;
+  const displayImageUrl = imagePreviewUrl || initialThumbnailUrl;
+
+  if (isBookLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isBookError || !bookData) {
+    return (
+      <div className="max-w-xl mx-auto p-6 md:p-10 bg-card rounded-xl shadow-lg mt-8 text-center">
+        <h1 className="text-3xl font-extrabold mb-8 text-destructive">Book Not Found</h1>
+        <p className="text-muted-foreground">Could not load details for book ID: {bookId}.</p>
+        <Button onClick={() => router.push("/books")} className="mt-6">
+          Go to Books List
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="max-w-xl mx-auto p-6 md:p-10 bg-card rounded-xl shadow-lg mt-8">
-        <h1 className="text-3xl font-extrabold mb-8 text-center text-primary">List a New Book</h1>
+        <h1 className="text-3xl font-extrabold mb-8 text-center text-primary">
+          Update Book Listing
+        </h1>
 
-        {imagePreviewUrl && (
+        {displayImageUrl && (
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Image Preview</h2>
-            {/*  */}
+            <h2 className="text-xl font-semibold mb-3">
+              {imagePreviewUrl ? "New Image Preview" : "Current Thumbnail"}
+            </h2>
             <div className="relative w-full h-64 border rounded-lg overflow-hidden bg-gray-100">
               <Image
-                src={imagePreviewUrl}
+                src={displayImageUrl}
                 alt="Book Thumbnail Preview"
                 fill
                 style={{ objectFit: "contain" }}
@@ -176,7 +212,6 @@ export default function AddBookPage() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-            {/* Title Field */}
             <FormField
               control={form.control}
               name="title"
@@ -225,7 +260,7 @@ export default function AddBookPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -251,7 +286,7 @@ export default function AddBookPage() {
                 <FormItem>
                   <FormLabel>Price ($)</FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder="e.g., 19.99" {...field} />
+                    <Input type="text" placeholder="e.g., 19.99" {...field} value={field.value} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -263,7 +298,7 @@ export default function AddBookPage() {
               name="thumbnail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Thumbnail Image</FormLabel>
+                  <FormLabel>Thumbnail Image (Optional: Select new file to update)</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
@@ -284,10 +319,10 @@ export default function AddBookPage() {
               {mutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Adding Book...
+                  Updating Book...
                 </>
               ) : (
-                "Add Book"
+                "Save Changes"
               )}
             </Button>
           </form>

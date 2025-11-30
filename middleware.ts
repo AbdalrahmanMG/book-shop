@@ -41,7 +41,7 @@ export const config = {
     "/books",
     "/books/:path*",
     "/books/new-book",
-    "/books/edit/:path*",
+    "/books/update-book/:path*",
     "/my-books/:path*",
     "/profile/:path*",
     "/new-book/:path*",
