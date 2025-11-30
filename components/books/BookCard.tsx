@@ -6,8 +6,9 @@ import { Book, SafeUserData } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Pencil, Trash2, Eye, Loader2 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { DeleteModal } from "./DeleteModal";
+import { BookActions } from "./BookActions";
 
 interface BookCardProps {
   book: Book;
@@ -65,24 +66,11 @@ export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookC
           </Button>
 
           {isOwner && (
-            <>
-              <Button variant="secondary" size="icon" onClick={handleEdit} title="Edit Book">
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => setIsModalOpen(true)}
-                title="Delete Book"
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4" />
-                )}
-              </Button>
-            </>
+            <BookActions
+              onEdit={handleEdit}
+              onDelete={() => setIsModalOpen(true)}
+              isDeleting={isDeleting}
+            />
           )}
         </CardFooter>
       </Card>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToasterProvider } from "@/components/ToasterProvider";
-import { ThemeProvider } from "@/components/theme-profider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Book shop management",
