@@ -16,7 +16,7 @@ describe("getBookDetails", () => {
       price: 20,
       author: "Author One",
       category: "Technology",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "/image1.jpg",
     },
     {
@@ -26,7 +26,7 @@ describe("getBookDetails", () => {
       price: 30,
       author: "Author Two",
       category: "Science",
-      ownerId: 2,
+      owner_id: 2,
       thumbnail: "/image2.jpg",
     },
     {
@@ -36,7 +36,7 @@ describe("getBookDetails", () => {
       price: 40,
       author: "Author Three",
       category: "History",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     },
   ];
@@ -56,7 +56,7 @@ describe("getBookDetails", () => {
       price: 30,
       author: "Author Two",
       category: "Science",
-      ownerId: 2,
+      owner_id: 2,
       thumbnail: "/image2.jpg",
     });
   });
@@ -134,7 +134,7 @@ describe("getBookDetails", () => {
     expect(result).toHaveProperty("price");
     expect(result).toHaveProperty("author");
     expect(result).toHaveProperty("category");
-    expect(result).toHaveProperty("ownerId");
+    expect(result).toHaveProperty("owner_id");
     expect(result).toHaveProperty("thumbnail");
   });
 });

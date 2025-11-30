@@ -1,12 +1,11 @@
 "use server";
 
-import { readJson } from "@/lib/helper/readJson";
 import { uploadImage } from "@/lib/helper/uploadImages";
-import { writeJson } from "@/lib/helper/writeJson";
 import { categories, VALID_BOOK_CATEGORIES, Book } from "@/types";
 import { cookies } from "next/headers";
 import { updateBookSchema } from "@/validation/auth";
 import z from "zod";
+import { supabase } from "@/lib/supabase";
 
 type ValidatedUpdateData = z.output<typeof updateBookSchema>;
 
@@ -39,28 +38,36 @@ export async function getBooks({
   sort = "none",
   bookOwnerId = null,
 }: GetBooksOptions) {
-  let books = await readJson<Book[]>("books.json");
+  let query = supabase.from("books").select("*", { count: "exact" });
 
   if (bookOwnerId) {
-    books = books.filter((book) => book.ownerId === bookOwnerId);
+    query = query.eq("owner_id", bookOwnerId);
   }
 
   if (search) {
-    books = books.filter((book) => book.title.toLowerCase().includes(search.toLowerCase()));
+    query = query.ilike("title", `%${search}%`);
   }
 
   if (sort !== "none") {
-    books.sort((a, b) => {
-      return sort === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title);
-    });
+    query = query.order("title", { ascending: sort === "asc" });
   }
 
-  const total = books.length;
-  const pages = Math.ceil(total / pageSize);
   const start = (page - 1) * pageSize;
-  const paginatedBooks = books.slice(start, start + pageSize);
+  const end = start + pageSize - 1;
 
-  return { books: paginatedBooks, total, pages };
+  query = query.range(start, end);
+
+  const { data: books, error, count } = await query;
+
+  if (error) {
+    console.error("Error fetching books:", error);
+    return { books: [], total: 0, pages: 0 };
+  }
+
+  const total = count || 0;
+  const pages = Math.ceil(total / pageSize);
+
+  return { books: books || [], total, pages };
 }
 
 export async function getBookDetails(id: number): Promise<Book | null> {
@@ -70,15 +77,17 @@ export async function getBookDetails(id: number): Promise<Book | null> {
   }
 
   try {
-    const books = await readJson<Book[]>("books.json");
+    const { data: book, error } = await supabase.from("books").select("*").eq("id", id).single();
 
-    const book = books.find((b) => b.id === id);
+    if (error) {
+      console.error(`Error fetching book with ID ${id}:`, error);
+      return null;
+    }
 
-    return book || null;
+    return book;
   } catch (error) {
-    console.error(`[File Read Error] Failed to read books data while looking for ID ${id}:`, error);
-
-    throw new Error(`Failed to retrieve book details due to a file system error.`);
+    console.error(`Failed to retrieve book details for ID ${id}:`, error);
+    throw new Error(`Failed to retrieve book details due to an error.`);
   }
 }
 
@@ -89,13 +98,14 @@ export async function addBook(formData: FormData): Promise<AddBookResult> {
   if (!userCookies) {
     return { success: false, message: "Authentication cookie not found." };
   }
+
   try {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const priceString = formData.get("price") as string;
     const author = formData.get("author") as string;
     const category = formData.get("category") as categories;
-    const ownerId = Number(formData.get("ownerId"));
+    const owner_id = Number(formData.get("owner_id"));
     const file = formData.get("thumbnail") as File;
 
     const price = Number(priceString);
@@ -105,8 +115,8 @@ export async function addBook(formData: FormData): Promise<AddBookResult> {
       !description ||
       !author ||
       !category ||
-      isNaN(ownerId) ||
-      ownerId <= 0 ||
+      isNaN(owner_id) ||
+      owner_id <= 0 ||
       isNaN(price) ||
       price <= 0
     ) {
@@ -137,27 +147,29 @@ export async function addBook(formData: FormData): Promise<AddBookResult> {
       }
     }
 
-    const books = await readJson<Book[]>("books.json");
-
-    const newId = books.length ? books[books.length - 1].id + 1 : 1;
-
-    const newBook: Book = {
-      id: newId,
+    const newBook = {
       title,
       description,
       price: parseFloat(price.toFixed(2)),
       author,
       category,
-      ownerId,
+      owner_id,
       thumbnail,
     };
 
-    books.push(newBook);
-    await writeJson("books.json", books);
+    const { data, error } = await supabase.from("books").insert(newBook).select().single();
+
+    if (error) {
+      console.error("Error adding book:", error);
+      return {
+        success: false,
+        message: "Failed to add book to database.",
+      };
+    }
 
     return {
       success: true,
-      book: newBook,
+      book: data,
       message: "Book added successfully!",
     };
   } catch (error) {
@@ -186,18 +198,15 @@ export async function deleteBook(id: number): Promise<DeleteResult> {
   }
 
   try {
-    const books = await readJson<Book[]>("books.json");
+    const { error } = await supabase.from("books").delete().eq("id", id);
 
-    const updatedBooks = books.filter((b) => b.id !== id);
-
-    if (updatedBooks.length === books.length) {
+    if (error) {
+      console.error("Error deleting book:", error);
       return {
         success: false,
-        message: `Book with ID ${id} not found.`,
+        message: `Failed to delete book with ID ${id}.`,
       };
     }
-
-    await writeJson("books.json", updatedBooks);
 
     return {
       success: true,
@@ -208,7 +217,7 @@ export async function deleteBook(id: number): Promise<DeleteResult> {
 
     return {
       success: false,
-      message: "A file system error occurred during deletion.",
+      message: "An error occurred during deletion.",
     };
   }
 }
@@ -220,6 +229,7 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
   if (!userCookies) {
     return { error: "Authentication cookie not found." };
   }
+
   const id = formData.get("id");
   if (!id) {
     return { error: "Book ID is missing." };
@@ -255,23 +265,17 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
     }
   }
 
-  let books: Book[];
-  try {
-    books = await readJson<Book[]>("books.json");
-  } catch (e) {
-    console.error("Failed to read books.json:", e);
-    return { error: "Failed to access book data." };
-  }
+  const { data: existingBook, error: fetchError } = await supabase
+    .from("books")
+    .select("*")
+    .eq("id", bookId)
+    .single();
 
-  const index = books.findIndex((b) => String(b.id) === String(bookId));
-  if (index === -1) {
+  if (fetchError || !existingBook) {
     return { error: `Book with ID ${bookId} not found.` };
   }
 
-  const existingBook = books[index];
-
-  const updatedBook: Book = {
-    ...existingBook,
+  const updatedBook = {
     title: validatedData.title ?? existingBook.title,
     price: validatedData.price ?? existingBook.price,
     author: validatedData.author ?? existingBook.author,
@@ -279,13 +283,17 @@ export async function updateBook(formData: FormData): Promise<Book | { error: st
     thumbnail: newThumbnailUrl ?? existingBook.thumbnail,
   };
 
-  try {
-    books[index] = updatedBook;
-    await writeJson("books.json", books);
-  } catch (e) {
-    console.error("Failed to write books.json:", e);
+  const { data, error } = await supabase
+    .from("books")
+    .update(updatedBook)
+    .eq("id", bookId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to update book:", error);
     return { error: "Failed to save updated book data." };
   }
 
-  return updatedBook;
+  return data;
 }

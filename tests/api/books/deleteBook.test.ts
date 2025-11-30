@@ -31,7 +31,7 @@ describe("deleteBook", () => {
       price: 20,
       author: "Author 1",
       category: "Technology",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     },
     {
@@ -41,7 +41,7 @@ describe("deleteBook", () => {
       price: 30,
       author: "Author 2",
       category: "Science",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     },
     {
@@ -51,7 +51,7 @@ describe("deleteBook", () => {
       price: 40,
       author: "Author 3",
       category: "History",
-      ownerId: 2,
+      owner_id: 2,
       thumbnail: "",
     },
   ];

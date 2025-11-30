@@ -50,7 +50,7 @@ describe("addBook", () => {
       price: 20,
       author: "Author",
       category: "Technology",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     },
   ];
@@ -79,7 +79,7 @@ describe("addBook", () => {
       price: "25",
       author: "Test Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -99,7 +99,7 @@ describe("addBook", () => {
       price: "30",
       author: "New Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -112,7 +112,7 @@ describe("addBook", () => {
       price: 30,
       author: "New Author",
       category: "Fiction",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     });
     expect(result.message).toBe("Book added successfully!");
@@ -130,7 +130,7 @@ describe("addBook", () => {
       price: "40",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
     formData.set("thumbnail", file);
 
@@ -149,7 +149,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -167,7 +167,7 @@ describe("addBook", () => {
       price: "-10",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -185,7 +185,7 @@ describe("addBook", () => {
       price: "0",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -194,7 +194,7 @@ describe("addBook", () => {
     expect(result.message).toContain("Validation failed");
   });
 
-  it("should return error when ownerId is invalid", async () => {
+  it("should return error when owner_id is invalid", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
 
     const formData = createFormData({
@@ -203,7 +203,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "Fiction",
-      ownerId: "-1",
+      owner_id: "-1",
     });
 
     const result = await addBook(formData);
@@ -221,7 +221,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "InvalidCategory",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -241,7 +241,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
     formData.set("thumbnail", file);
 
@@ -261,7 +261,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -279,7 +279,7 @@ describe("addBook", () => {
       price: "30.999",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -298,7 +298,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "Fiction",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -319,7 +319,7 @@ describe("addBook", () => {
         price: "30",
         author: "Author",
         category,
-        ownerId: "1",
+        owner_id: "1",
       });
 
       const result = await addBook(formData);

@@ -43,7 +43,7 @@ describe("updateBook", () => {
       price: 20,
       author: "Original Author",
       category: "Technology",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "/old-image.jpg",
     },
     {
@@ -53,7 +53,7 @@ describe("updateBook", () => {
       price: 30,
       author: "Another Author",
       category: "Science",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     },
   ];
@@ -150,7 +150,7 @@ describe("updateBook", () => {
       price: 25,
       author: "Updated Author",
       category: "Fiction",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "/old-image.jpg",
     });
 
@@ -335,7 +335,7 @@ describe("updateBook", () => {
       price: 50,
       author: "New Author",
       category: "History",
-      ownerId: 1,
+      owner_id: 1,
       thumbnail: "",
     });
   });

@@ -21,7 +21,7 @@ export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookC
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const isOwner = userData && userData.id === book.ownerId;
+  const isOwner = userData && userData.id === book.owner_id;
 
   const handleEdit = () => {
     router.push(`/books/update-book?id=${book.id}`);

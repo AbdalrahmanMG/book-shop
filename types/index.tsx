@@ -15,7 +15,7 @@ export interface Book {
   thumbnail: string;
   author: string;
   category: categories;
-  ownerId: number;
+  owner_id: number;
 }
 
 export interface User {

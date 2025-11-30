@@ -9,11 +9,11 @@ vi.mock("@/lib/helper/readJson", () => ({
 
 describe("getBooks", () => {
   const mockBooks: Partial<Book>[] = [
-    { id: 1, title: "Zebra Book", author: "Author A", price: 10, ownerId: 1 },
-    { id: 2, title: "Apple Book", author: "Author B", price: 20, ownerId: 1 },
-    { id: 3, title: "Mango Book", author: "Author C", price: 30, ownerId: 2 },
-    { id: 4, title: "Banana Book", author: "Author D", price: 40, ownerId: 2 },
-    { id: 5, title: "Cherry Book", author: "Author E", price: 50, ownerId: 1 },
+    { id: 1, title: "Zebra Book", author: "Author A", price: 10, owner_id: 1 },
+    { id: 2, title: "Apple Book", author: "Author B", price: 20, owner_id: 1 },
+    { id: 3, title: "Mango Book", author: "Author C", price: 30, owner_id: 2 },
+    { id: 4, title: "Banana Book", author: "Author D", price: 40, owner_id: 2 },
+    { id: 5, title: "Cherry Book", author: "Author E", price: 50, owner_id: 1 },
   ];
 
   beforeEach(() => {
@@ -87,27 +87,27 @@ describe("getBooks", () => {
     expect(result.books[2].id).toBe(3);
   });
 
-  it("should filter books by ownerId", async () => {
+  it("should filter books by owner_id", async () => {
     const result = await getBooks({ bookOwnerId: 1 });
 
     expect(result.books).toHaveLength(3);
     expect(result.total).toBe(3);
-    expect(result.books.every((book) => book.ownerId === 1)).toBe(true);
+    expect(result.books.every((book) => book.owner_id === 1)).toBe(true);
   });
 
-  it("should filter books by different ownerId", async () => {
+  it("should filter books by different owner_id", async () => {
     const result = await getBooks({ bookOwnerId: 2 });
 
     expect(result.books).toHaveLength(2);
     expect(result.total).toBe(2);
-    expect(result.books.every((book) => book.ownerId === 2)).toBe(true);
+    expect(result.books.every((book) => book.owner_id === 2)).toBe(true);
   });
 
-  it("should combine search and ownerId filters", async () => {
+  it("should combine search and owner_id filters", async () => {
     const result = await getBooks({ bookOwnerId: 1, search: "book" });
 
     expect(result.books).toHaveLength(3);
-    expect(result.books.every((book) => book.ownerId === 1)).toBe(true);
+    expect(result.books.every((book) => book.owner_id === 1)).toBe(true);
   });
 
   it("should combine all filters with pagination and sort", async () => {
@@ -133,7 +133,7 @@ describe("getBooks", () => {
     expect(result.pages).toBe(0);
   });
 
-  it("should return empty array when no books match ownerId", async () => {
+  it("should return empty array when no books match owner_id", async () => {
     const result = await getBooks({ bookOwnerId: 999 });
 
     expect(result.books).toHaveLength(0);

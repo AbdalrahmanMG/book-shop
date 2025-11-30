@@ -17,7 +17,6 @@ import { toast } from "sonner";
 const MyBookPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  // const [bookOwnerId, setBookOwnerId] = useState<number | null>(null);
   const [sort, setSort] = useState<"asc" | "desc" | "none">("none");
 
   const debouncedSearch = useDebounce(search, 400);
