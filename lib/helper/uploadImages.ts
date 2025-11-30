@@ -1,10 +1,8 @@
-import path from "path";
-import fs from "fs/promises";
+import { supabase } from "@/lib/supabase";
 import mime from "mime-types";
+import path from "path";
 
 export async function uploadImage(file: File): Promise<string> {
-  const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
-
   if (!(file instanceof File) || file.size === 0) {
     throw new Error("Invalid or empty file provided.");
   }
@@ -28,21 +26,30 @@ export async function uploadImage(file: File): Promise<string> {
   }
 
   try {
-    await fs.mkdir(UPLOADS_DIR, { recursive: true });
+    const fileExtension = path.extname(file.name);
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const fileName = `thumbnails/upload-${uniqueSuffix}${fileExtension}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const fileExtension = path.extname(file.name);
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const fileName = `upload-${uniqueSuffix}${fileExtension}`;
-    const filePath = path.join(UPLOADS_DIR, fileName);
+    const { data, error } = await supabase.storage
+      .from("book-thumbnails")
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
 
-    await fs.writeFile(filePath, buffer);
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
 
-    return `/uploads/${fileName}`;
+    const { data: urlData } = supabase.storage.from("book-thumbnails").getPublicUrl(fileName);
+
+    return urlData.publicUrl;
   } catch (error) {
     console.error(`[Upload Error] Failed to process or save file ${file.name}:`, error);
-    throw new Error("Failed to save the image file to the server.");
+    throw new Error("Failed to save the image file to Supabase.");
   }
 }
