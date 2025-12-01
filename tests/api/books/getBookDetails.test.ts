@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getBookDetails } from "@/api/books/actions";
-import { readJson } from "@/lib/helper/readJson";
+import { supabase } from "@/lib/supabase";
 import type { Book } from "@/types";
 
-vi.mock("@/lib/helper/readJson", () => ({
-  readJson: vi.fn(),
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(),
+  },
 }));
 
 describe("getBookDetails", () => {
@@ -43,10 +45,26 @@ describe("getBookDetails", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(readJson<Book[]>).mockResolvedValue([...mockBooks]);
   });
 
+  const mockSupabaseGetById = (book: Book | null) => {
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
+
+    const queryMock = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: book,
+        error: book ? null : { message: "Not found" },
+      }),
+    };
+
+    vi.mocked(supabase.from).mockReturnValue(queryMock as unknown as SupabaseQueryBuilder);
+  };
+
   it("should return book when found", async () => {
+    mockSupabaseGetById(mockBooks[1]);
+
     const result = await getBookDetails(2);
 
     expect(result).toEqual({
@@ -62,6 +80,8 @@ describe("getBookDetails", () => {
   });
 
   it("should return null when book not found", async () => {
+    mockSupabaseGetById(null);
+
     const result = await getBookDetails(999);
 
     expect(result).toBeNull();
@@ -78,40 +98,51 @@ describe("getBookDetails", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("should throw error when file read fails", async () => {
-    vi.mocked(readJson<Book[]>).mockRejectedValue(new Error("File read error"));
+  it("should handle database errors gracefully", async () => {
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
 
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const errorMock = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: "Database error" },
+      }),
+    };
 
-    await expect(getBookDetails(1)).rejects.toThrow(
-      "Failed to retrieve book details due to a file system error.",
-    );
+    vi.mocked(supabase.from).mockReturnValue(errorMock as unknown as SupabaseQueryBuilder);
 
-    expect(consoleErrorSpy).toHaveBeenCalled();
+    const result = await getBookDetails(1);
 
-    consoleErrorSpy.mockRestore();
+    expect(result).toBeNull();
   });
 
   it("should return first book correctly", async () => {
+    mockSupabaseGetById(mockBooks[0]);
+
     const result = await getBookDetails(1);
 
     expect(result).toEqual(mockBooks[0]);
   });
 
   it("should return last book correctly", async () => {
+    mockSupabaseGetById(mockBooks[2]);
+
     const result = await getBookDetails(3);
 
     expect(result).toEqual(mockBooks[2]);
   });
 
-  it("should call readJson with correct parameters", async () => {
+  it("should call supabase.from with correct table name", async () => {
+    mockSupabaseGetById(mockBooks[0]);
+
     await getBookDetails(1);
 
-    expect(readJson).toHaveBeenCalledWith("books.json");
+    expect(supabase.from).toHaveBeenCalledWith("books");
   });
 
-  it("should handle empty books array", async () => {
-    vi.mocked(readJson<Book[]>).mockResolvedValue([]);
+  it("should handle when book does not exist", async () => {
+    mockSupabaseGetById(null);
 
     const result = await getBookDetails(1);
 
@@ -119,6 +150,8 @@ describe("getBookDetails", () => {
   });
 
   it("should find book by exact ID match", async () => {
+    mockSupabaseGetById(mockBooks[1]);
+
     const result = await getBookDetails(2);
 
     expect(result?.id).toBe(2);
@@ -126,6 +159,8 @@ describe("getBookDetails", () => {
   });
 
   it("should return complete book object with all properties", async () => {
+    mockSupabaseGetById(mockBooks[0]);
+
     const result = await getBookDetails(1);
 
     expect(result).toHaveProperty("id");
@@ -136,5 +171,35 @@ describe("getBookDetails", () => {
     expect(result).toHaveProperty("category");
     expect(result).toHaveProperty("owner_id");
     expect(result).toHaveProperty("thumbnail");
+  });
+
+  it("should handle negative ID values", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await getBookDetails(-1);
+
+    expect(result).toBeNull();
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid book ID provided:", -1);
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("should query with correct ID filter", async () => {
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
+
+    const queryMock = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: mockBooks[0],
+        error: null,
+      }),
+    };
+
+    vi.mocked(supabase.from).mockReturnValue(queryMock as unknown as SupabaseQueryBuilder);
+
+    await getBookDetails(1);
+
+    expect(queryMock.eq).toHaveBeenCalledWith("id", 1);
   });
 });

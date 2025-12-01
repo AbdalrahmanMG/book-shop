@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
 import { updateBook } from "@/api/books/actions";
-import { readJson } from "@/lib/helper/readJson";
-import { writeJson } from "@/lib/helper/writeJson";
+import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/helper/uploadImages";
 import { updateBookSchema } from "@/validation/auth";
 import type { Book } from "@/types";
@@ -12,12 +11,10 @@ vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
 
-vi.mock("@/lib/helper/readJson", () => ({
-  readJson: vi.fn(),
-}));
-
-vi.mock("@/lib/helper/writeJson", () => ({
-  writeJson: vi.fn(),
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(),
+  },
 }));
 
 vi.mock("@/lib/helper/uploadImages", () => ({
@@ -61,8 +58,6 @@ describe("updateBook", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(cookies).mockResolvedValue(mockCookieStore);
-    vi.mocked(readJson<Book[]>).mockResolvedValue([...mockBooks]);
-    vi.mocked(writeJson).mockResolvedValue(undefined);
   });
 
   const createFormData = (data: Record<string, string | File>) => {
@@ -71,6 +66,34 @@ describe("updateBook", () => {
       formData.append(key, value);
     });
     return formData;
+  };
+
+  const mockSupabaseQuery = (book: Book | null, updateResult: Book | null = null) => {
+    const selectMock = {
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: book,
+        error: book ? null : { message: "Not found" },
+      }),
+    };
+
+    const updateMock = {
+      eq: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: updateResult,
+        error: updateResult ? null : { message: "Update failed" },
+      }),
+    };
+
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
+
+    vi.mocked(supabase.from).mockImplementation(() => {
+      return {
+        select: vi.fn().mockReturnValue(selectMock),
+        update: vi.fn().mockReturnValue(updateMock),
+      } as unknown as SupabaseQueryBuilder;
+    });
   };
 
   it("should return error when auth cookie not found", async () => {
@@ -133,36 +156,31 @@ describe("updateBook", () => {
       },
     } as never);
 
+    const existingBook = mockBooks[0];
+    const updatedBook: Book = {
+      ...existingBook,
+      title: "Updated Title",
+      price: 25,
+      author: "Updated Author",
+      category: "Technology" as const,
+    };
+
+    mockSupabaseQuery(existingBook, updatedBook);
+
     const formData = createFormData({
       id: "1",
       title: "Updated Title",
       price: "25",
       author: "Updated Author",
-      category: "Fiction",
+      category: "Technology",
     });
 
     const result = await updateBook(formData);
 
     expect(result).toEqual({
-      id: 1,
-      title: "Updated Title",
-      description: "Original Description",
-      price: 25,
-      author: "Updated Author",
-      category: "Fiction",
-      owner_id: 1,
-      thumbnail: "/old-image.jpg",
+      ...updatedBook,
+      category: "Technology",
     });
-
-    expect(writeJson).toHaveBeenCalledWith(
-      "books.json",
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-          title: "Updated Title",
-        }),
-      ]),
-    );
   });
 
   it("should update book with new thumbnail", async () => {
@@ -176,6 +194,15 @@ describe("updateBook", () => {
         title: "Updated Title",
       },
     } as never);
+
+    const existingBook = mockBooks[0];
+    const updatedBook: Book = {
+      ...existingBook,
+      title: "Updated Title",
+      thumbnail: "/new-image.jpg",
+    };
+
+    mockSupabaseQuery(existingBook, updatedBook);
 
     const file = new File(["test"], "test.jpg", { type: "image/jpeg" });
     const formData = createFormData({
@@ -200,6 +227,8 @@ describe("updateBook", () => {
         title: "Updated Title",
       },
     } as never);
+
+    mockSupabaseQuery(null);
 
     const formData = createFormData({
       id: "999",
@@ -235,9 +264,8 @@ describe("updateBook", () => {
     expect(result).toEqual({ error: "Failed to upload new thumbnail image." });
   });
 
-  it("should handle read file failure", async () => {
+  it("should handle database fetch error", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
-    vi.mocked(readJson<Book[]>).mockRejectedValue(new Error("Read error"));
 
     vi.mocked(updateBookSchema.safeParse).mockReturnValue({
       success: true,
@@ -246,6 +274,20 @@ describe("updateBook", () => {
         title: "Updated Title",
       },
     } as never);
+
+    const selectMock = {
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: "Database error" },
+      }),
+    };
+
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
+
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue(selectMock),
+    } as unknown as SupabaseQueryBuilder);
 
     const formData = createFormData({
       id: "1",
@@ -254,12 +296,11 @@ describe("updateBook", () => {
 
     const result = await updateBook(formData);
 
-    expect(result).toEqual({ error: "Failed to access book data." });
+    expect(result).toEqual({ error: "Book with ID 1 not found." });
   });
 
-  it("should handle write file failure", async () => {
+  it("should handle database update error", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
-    vi.mocked(writeJson).mockRejectedValue(new Error("Write error"));
 
     vi.mocked(updateBookSchema.safeParse).mockReturnValue({
       success: true,
@@ -268,6 +309,32 @@ describe("updateBook", () => {
         title: "Updated Title",
       },
     } as never);
+
+    const existingBook = mockBooks[0];
+
+    const selectMock = {
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: existingBook,
+        error: null,
+      }),
+    };
+
+    const updateMock = {
+      eq: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: "Update failed" },
+      }),
+    };
+
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
+
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnValue(selectMock),
+      update: vi.fn().mockReturnValue(updateMock),
+    } as unknown as SupabaseQueryBuilder);
 
     const formData = createFormData({
       id: "1",
@@ -289,6 +356,14 @@ describe("updateBook", () => {
         title: "Only Title Updated",
       },
     } as never);
+
+    const existingBook = mockBooks[0];
+    const updatedBook: Book = {
+      ...existingBook,
+      title: "Only Title Updated",
+    };
+
+    mockSupabaseQuery(existingBook, updatedBook);
 
     const formData = createFormData({
       id: "1",
@@ -318,6 +393,17 @@ describe("updateBook", () => {
       },
     } as never);
 
+    const existingBook = mockBooks[1];
+    const updatedBook: Book = {
+      ...existingBook,
+      title: "New Title",
+      price: 50,
+      author: "New Author",
+      category: "History" as const,
+    };
+
+    mockSupabaseQuery(existingBook, updatedBook);
+
     const formData = createFormData({
       id: "2",
       title: "New Title",
@@ -328,16 +414,7 @@ describe("updateBook", () => {
 
     const result = await updateBook(formData);
 
-    expect(result).toEqual({
-      id: 2,
-      title: "New Title",
-      description: "Another Description",
-      price: 50,
-      author: "New Author",
-      category: "History",
-      owner_id: 1,
-      thumbnail: "",
-    });
+    expect(result).toEqual(updatedBook);
   });
 
   it("should not update thumbnail when file is empty", async () => {
@@ -350,6 +427,14 @@ describe("updateBook", () => {
         title: "Updated Title",
       },
     } as never);
+
+    const existingBook = mockBooks[0];
+    const updatedBook: Book = {
+      ...existingBook,
+      title: "Updated Title",
+    };
+
+    mockSupabaseQuery(existingBook, updatedBook);
 
     const emptyFile = new File([], "", { type: "image/jpeg" });
     const formData = createFormData({
