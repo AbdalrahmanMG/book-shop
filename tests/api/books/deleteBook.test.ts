@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
 import { deleteBook } from "@/api/books/actions";
 import { supabase } from "@/lib/supabase";
-import type { Book } from "@/types";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 vi.mock("next/headers", () => ({
@@ -19,39 +18,6 @@ describe("deleteBook", () => {
   const mockCookieStore = {
     get: vi.fn(),
   } as unknown as ReadonlyRequestCookies;
-
-  const mockBooks: Book[] = [
-    {
-      id: 1,
-      title: "Book One",
-      description: "Description 1",
-      price: 20,
-      author: "Author 1",
-      category: "Technology",
-      owner_id: 1,
-      thumbnail: "",
-    },
-    {
-      id: 2,
-      title: "Book Two",
-      description: "Description 2",
-      price: 30,
-      author: "Author 2",
-      category: "Science",
-      owner_id: 1,
-      thumbnail: "",
-    },
-    {
-      id: 3,
-      title: "Book Three",
-      description: "Description 3",
-      price: 40,
-      author: "Author 3",
-      category: "History",
-      owner_id: 2,
-      thumbnail: "",
-    },
-  ];
 
   beforeEach(() => {
     vi.clearAllMocks();

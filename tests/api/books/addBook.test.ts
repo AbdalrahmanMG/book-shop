@@ -306,8 +306,6 @@ describe("addBook", () => {
   it("should handle unexpected errors", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
 
-    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
-
     vi.mocked(supabase.from).mockImplementation(() => {
       throw new Error("Database error");
     });

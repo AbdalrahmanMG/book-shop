@@ -33,12 +33,10 @@ export async function uploadImage(file: File): Promise<string> {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { data, error } = await supabase.storage
-      .from("book-thumbnails")
-      .upload(fileName, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+    const { error } = await supabase.storage.from("book-thumbnails").upload(fileName, buffer, {
+      contentType: file.type,
+      upsert: false,
+    });
 
     if (error) {
       console.error("Supabase upload error:", error);
