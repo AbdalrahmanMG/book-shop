@@ -158,6 +158,10 @@ describe("LoginForm", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
+      expect(mockLoginAction).toHaveBeenCalledTimes(2);
+    });
+
+    await waitFor(() => {
       expect(screen.queryByText("First error")).not.toBeInTheDocument();
     });
   });

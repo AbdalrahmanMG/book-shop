@@ -133,7 +133,7 @@ describe("BookForm", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSubmit).toHaveBeenCalled();
+      expect(mockSubmit).toHaveBeenCalledTimes(1);
     });
 
     const callArgs = mockSubmit.mock.calls[0][0];
