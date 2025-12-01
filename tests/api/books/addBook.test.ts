@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { cookies } from "next/headers";
 import { addBook } from "@/api/books/actions";
-import { readJson } from "@/lib/helper/readJson";
-import { writeJson } from "@/lib/helper/writeJson";
+import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/helper/uploadImages";
 import type { Book } from "@/types";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
@@ -11,56 +10,43 @@ vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
 
-vi.mock("@/lib/helper/readJson", () => ({
-  readJson: vi.fn(),
-}));
-
-vi.mock("@/lib/helper/writeJson", () => ({
-  writeJson: vi.fn(),
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(),
+  },
 }));
 
 vi.mock("@/lib/helper/uploadImages", () => ({
   uploadImage: vi.fn(),
 }));
 
-vi.mock("@/types", async () => {
-  const actual = await vi.importActual("@/types");
-  return {
-    ...actual,
-    VALID_BOOK_CATEGORIES: {
-      FICTION: "Fiction",
-      NON_FICTION: "Non-Fiction",
-      SCIENCE: "Science",
-      HISTORY: "History",
-      BIOGRAPHY: "Biography",
-    },
-  };
-});
-
 describe("addBook", () => {
   const mockCookieStore = {
     get: vi.fn(),
   } as unknown as ReadonlyRequestCookies;
 
-  const mockBooks: Book[] = [
-    {
-      id: 1,
-      title: "Existing Book",
-      description: "Description",
-      price: 20,
-      author: "Author",
-      category: "Technology",
-      ownerId: 1,
-      thumbnail: "",
-    },
-  ];
-
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(cookies).mockResolvedValue(mockCookieStore);
-    vi.mocked(readJson<Book[]>).mockResolvedValue([...mockBooks]);
-    vi.mocked(writeJson).mockResolvedValue(undefined);
   });
+
+  const mockSupabaseInsert = (newBook: Book | null = null, shouldFail = false) => {
+    type SupabaseQueryBuilder = ReturnType<typeof supabase.from>;
+
+    const insertMock = {
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: newBook,
+        error: shouldFail || !newBook ? { message: "Insert failed" } : null,
+      }),
+    };
+
+    vi.mocked(supabase.from).mockReturnValue({
+      insert: vi.fn().mockReturnValue(insertMock),
+    } as unknown as SupabaseQueryBuilder);
+
+    return insertMock;
+  };
 
   const createFormData = (data: Record<string, string | File>) => {
     const formData = new FormData();
@@ -78,8 +64,8 @@ describe("addBook", () => {
       description: "Test Description",
       price: "25",
       author: "Test Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -93,35 +79,51 @@ describe("addBook", () => {
   it("should add book successfully without thumbnail", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
 
-    const formData = createFormData({
-      title: "New Book",
-      description: "New Description",
-      price: "30",
-      author: "New Author",
-      category: "Fiction",
-      ownerId: "1",
-    });
-
-    const result = await addBook(formData);
-
-    expect(result.success).toBe(true);
-    expect(result.book).toEqual({
+    const newBook: Book = {
       id: 2,
       title: "New Book",
       description: "New Description",
       price: 30,
       author: "New Author",
-      category: "Fiction",
-      ownerId: 1,
+      category: "Technology",
+      owner_id: 1,
       thumbnail: "",
+    };
+
+    mockSupabaseInsert(newBook);
+
+    const formData = createFormData({
+      title: "New Book",
+      description: "New Description",
+      price: "30",
+      author: "New Author",
+      category: "Technology",
+      owner_id: "1",
     });
+
+    const result = await addBook(formData);
+
+    expect(result.success).toBe(true);
+    expect(result.book).toEqual(newBook);
     expect(result.message).toBe("Book added successfully!");
-    expect(writeJson).toHaveBeenCalled();
   });
 
   it("should add book with thumbnail successfully", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
     vi.mocked(uploadImage).mockResolvedValue("/uploads/image.jpg");
+
+    const newBook: Book = {
+      id: 3,
+      title: "Book With Image",
+      description: "Description",
+      price: 40,
+      author: "Author",
+      category: "Technology",
+      owner_id: 1,
+      thumbnail: "/uploads/image.jpg",
+    };
+
+    mockSupabaseInsert(newBook);
 
     const file = new File(["test"], "test.jpg", { type: "image/jpeg" });
     const formData = createFormData({
@@ -129,8 +131,8 @@ describe("addBook", () => {
       description: "Description",
       price: "40",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
     formData.set("thumbnail", file);
 
@@ -148,8 +150,8 @@ describe("addBook", () => {
       description: "Description",
       price: "30",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -166,8 +168,8 @@ describe("addBook", () => {
       description: "Description",
       price: "-10",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -184,8 +186,8 @@ describe("addBook", () => {
       description: "Description",
       price: "0",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -194,7 +196,7 @@ describe("addBook", () => {
     expect(result.message).toContain("Validation failed");
   });
 
-  it("should return error when ownerId is invalid", async () => {
+  it("should return error when owner_id is invalid", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
 
     const formData = createFormData({
@@ -202,8 +204,8 @@ describe("addBook", () => {
       description: "Description",
       price: "30",
       author: "Author",
-      category: "Fiction",
-      ownerId: "-1",
+      category: "Technology",
+      owner_id: "-1",
     });
 
     const result = await addBook(formData);
@@ -221,7 +223,7 @@ describe("addBook", () => {
       price: "30",
       author: "Author",
       category: "InvalidCategory",
-      ownerId: "1",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -240,8 +242,8 @@ describe("addBook", () => {
       description: "Description",
       price: "30",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
     formData.set("thumbnail", file);
 
@@ -251,35 +253,48 @@ describe("addBook", () => {
     expect(result.message).toBe("Failed to upload book cover image.");
   });
 
-  it("should generate correct ID for first book", async () => {
+  it("should handle database insert failure", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
-    vi.mocked(readJson<Book[]>).mockResolvedValue([]);
+    mockSupabaseInsert(null, true);
 
     const formData = createFormData({
-      title: "First Book",
+      title: "Test Book",
       description: "Description",
       price: "30",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
 
-    expect(result.success).toBe(true);
-    expect(result.book?.id).toBe(1);
+    expect(result.success).toBe(false);
+    expect(result.message).toBe("Failed to add book to database.");
   });
 
   it("should format price to 2 decimal places", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
+
+    const newBook: Book = {
+      id: 4,
+      title: "Test Book",
+      description: "Description",
+      price: 31,
+      author: "Author",
+      category: "Technology",
+      owner_id: 1,
+      thumbnail: "",
+    };
+
+    mockSupabaseInsert(newBook);
 
     const formData = createFormData({
       title: "Test Book",
       description: "Description",
       price: "30.999",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -290,15 +305,18 @@ describe("addBook", () => {
 
   it("should handle unexpected errors", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
-    vi.mocked(readJson<Book[]>).mockRejectedValue(new Error("Database error"));
+
+    vi.mocked(supabase.from).mockImplementation(() => {
+      throw new Error("Database error");
+    });
 
     const formData = createFormData({
       title: "Test Book",
       description: "Description",
       price: "30",
       author: "Author",
-      category: "Fiction",
-      ownerId: "1",
+      category: "Technology",
+      owner_id: "1",
     });
 
     const result = await addBook(formData);
@@ -310,20 +328,100 @@ describe("addBook", () => {
   it("should accept all valid categories", async () => {
     (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
 
-    const validCategories = ["Fiction", "Non-Fiction", "Science", "History", "Biography"];
+    const validCategories = ["Technology", "Science", "History", "Fantasy", "Biography"];
 
     for (const category of validCategories) {
+      const newBook: Book = {
+        id: 5,
+        title: "Test Book",
+        description: "Description",
+        price: 30,
+        author: "Author",
+        category: category as Book["category"],
+        owner_id: 1,
+        thumbnail: "",
+      };
+
+      mockSupabaseInsert(newBook);
+
       const formData = createFormData({
         title: "Test Book",
         description: "Description",
         price: "30",
         author: "Author",
         category,
-        ownerId: "1",
+        owner_id: "1",
       });
 
       const result = await addBook(formData);
       expect(result.success).toBe(true);
     }
+  });
+
+  it("should call supabase.from with correct table name", async () => {
+    (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
+
+    const newBook: Book = {
+      id: 6,
+      title: "Test Book",
+      description: "Description",
+      price: 30,
+      author: "Author",
+      category: "Technology",
+      owner_id: 1,
+      thumbnail: "",
+    };
+
+    mockSupabaseInsert(newBook);
+
+    const formData = createFormData({
+      title: "Test Book",
+      description: "Description",
+      price: "30",
+      author: "Author",
+      category: "Technology",
+      owner_id: "1",
+    });
+
+    await addBook(formData);
+
+    expect(supabase.from).toHaveBeenCalledWith("books");
+  });
+
+  it("should return complete book object with all properties", async () => {
+    (mockCookieStore.get as ReturnType<typeof vi.fn>).mockReturnValue({ value: "1" });
+
+    const newBook: Book = {
+      id: 7,
+      title: "Complete Book",
+      description: "Complete Description",
+      price: 35,
+      author: "Complete Author",
+      category: "Science",
+      owner_id: 1,
+      thumbnail: "",
+    };
+
+    mockSupabaseInsert(newBook);
+
+    const formData = createFormData({
+      title: "Complete Book",
+      description: "Complete Description",
+      price: "35",
+      author: "Complete Author",
+      category: "Science",
+      owner_id: "1",
+    });
+
+    const result = await addBook(formData);
+
+    expect(result.book).toHaveProperty("id");
+    expect(result.book).toHaveProperty("title");
+    expect(result.book).toHaveProperty("description");
+    expect(result.book).toHaveProperty("price");
+    expect(result.book).toHaveProperty("author");
+    expect(result.book).toHaveProperty("category");
+    expect(result.book).toHaveProperty("owner_id");
+    expect(result.book).toHaveProperty("thumbnail");
   });
 });

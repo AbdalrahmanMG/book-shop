@@ -2,8 +2,7 @@
 
 import { cookies } from "next/headers";
 import { User } from "@/types";
-import { readJson } from "@/lib/helper/readJson";
-import { writeJson } from "@/lib/helper/writeJson";
+import { supabase } from "@/lib/supabase";
 
 type UpdateResult = User | { error: string };
 
@@ -19,35 +18,32 @@ export async function updateProfileAction(data: {
 
   const userId = cookie?.value;
 
-  let users: User[];
-  try {
-    users = await readJson<User[]>("users.json");
-  } catch (error: Error | unknown) {
-    const err = error as { response?: { data?: { message?: string } } };
+  const { data: existingUser, error: fetchError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
 
-    return { error: `Failed to read user data file: ${err}` };
-  }
-
-  const index = users.findIndex((u) => String(u.id) === String(userId));
-  if (index === -1) {
+  if (fetchError || !existingUser) {
     return { error: `User with ID ${userId} not found.` };
   }
 
-  const existingUser = users[index];
-
-  const updatedUser: User = {
-    ...existingUser,
+  const updatedUser = {
     name: data.name ?? existingUser.name,
     email: data.email ?? existingUser.email,
   };
 
-  try {
-    users[index] = updatedUser;
-    await writeJson("users.json", users);
-  } catch (error: Error | unknown) {
-    const err = error as { response?: { data?: { message?: string } } };
-    return { error: `Failed to save updated user data: ${err}` };
+  const { data: updated, error } = await supabase
+    .from("users")
+    .update(updatedUser)
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to update user:", error);
+    return { error: "Failed to save updated user data." };
   }
 
-  return updatedUser;
+  return updated;
 }

@@ -57,7 +57,7 @@ export default function BookDetailsPage() {
 
   const handleEdit = () => router.push(`/books/update-book?id=${bookId}`);
   const handleDelete = () => deleteMutation.mutate(bookId);
-  const isOwner = userData && book && userData.id === book.ownerId;
+  const isOwner = userData && book && userData.id === book.owner_id;
 
   if (isLoading)
     return (

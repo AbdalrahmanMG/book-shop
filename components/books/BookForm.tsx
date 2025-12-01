@@ -35,13 +35,11 @@ export type BookFormData = {
   author: string;
   category: "Technology" | "Science" | "History" | "Fantasy" | "Biography";
   price: string;
-  thumbnail?: File | string | null; // Changed from optional '?' to mandatory as per form type
+  thumbnail?: File | string | null;
 };
 
 interface BookFormProps {
-  // Use the generic type parameter of UseFormReturn with BookFormData
-  // By defining the prop type here, we ensure it matches the data structure.
-  form: UseFormReturn<BookFormData>; // Ensure onSubmit is a function that accepts BookFormData
+  form: UseFormReturn<BookFormData>;
   onSubmit: (data: BookFormData) => void;
   isSubmitting: boolean;
   submitButtonText: string;
