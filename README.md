@@ -217,7 +217,7 @@ book-shop/
 ├── app/
 │   ├── (auth)/              # Authentication pages
 │   │   └── login/
-│   └── (app)/         # Protected dashboard pages
+│   └── (app)/               # Protected dashboard pages
 │       ├── books/
 │       ├── my-books/
 │       └── profile/
