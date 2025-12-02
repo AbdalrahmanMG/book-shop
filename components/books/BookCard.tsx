@@ -2,10 +2,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Book, SafeUserData } from "@/types";
+import { Book, categories, SafeUserData } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Eye } from "lucide-react";
 import { DeleteModal } from "./DeleteModal";
 import { BookActions } from "./BookActions";
@@ -15,9 +15,16 @@ interface BookCardProps {
   userData?: SafeUserData | null;
   onDelete?: () => void;
   isDeleting?: boolean;
+  onFilterByCategory: (value: categories) => void;
 }
 
-export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookCardProps) => {
+const BookCard = ({
+  book,
+  userData,
+  onDelete,
+  isDeleting = false,
+  onFilterByCategory,
+}: BookCardProps) => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -56,7 +63,18 @@ export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookC
             <p className="text-sm text-muted-foreground font-medium">{book.author}</p>
           </CardHeader>
 
-          <p className="text-xs text-secondary-foreground/70">Category: {book.category}</p>
+          <p className="text-xs text-secondary-foreground/70">
+            Category:{" "}
+            <span
+              className="cursor-pointer hover:text-primary/80"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFilterByCategory(book.category);
+              }}
+            >
+              {book.category}
+            </span>
+          </p>
           <p className="text-md font-semibold text-primary/80 mt-1">${book.price}</p>
         </CardContent>
 
@@ -88,3 +106,5 @@ export const BookCard = ({ book, userData, onDelete, isDeleting = false }: BookC
     </>
   );
 };
+
+export default memo(BookCard);

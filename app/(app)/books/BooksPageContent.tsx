@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import { getSessionData } from "@/api/auth/actions";
 import { getBooks } from "@/api/books/actions";
 import { deleteBook } from "@/api/books/actions";
-import { BookCard } from "@/components/books/BookCard";
+import BookCard from "@/components/books/BookCard";
 import MainPagination from "@/components/books/MainPagination";
 import SearchSortControls from "@/components/books/SearchSortControlers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { categories } from "@/types";
 
 const BooksPage = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ const BooksPage = () => {
   const page = Number(searchParams.get("page") || 1);
   const search = searchParams.get("search") || "";
   const sort = (searchParams.get("sort") as "asc" | "desc" | "none") || "none";
+  const category = (searchParams.get("category") as categories) || "";
   const [searchInput, setSearchInput] = useState(search);
 
   const updateURL = (params: Record<string, string | null | number>) => {
@@ -43,8 +45,8 @@ const BooksPage = () => {
     isLoading: isLoadingBooks,
     isError: isErrorBooks,
   } = useQuery({
-    queryKey: ["books", page, search, sort],
-    queryFn: () => getBooks({ page, pageSize: 12, search, sort, bookOwnerId: null }),
+    queryKey: ["books", page, search, sort, category],
+    queryFn: () => getBooks({ page, pageSize: 12, search, sort, bookOwnerId: null, category }),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 15,
   });
@@ -76,6 +78,11 @@ const BooksPage = () => {
   const handleReset = () => {
     setSearchInput("");
     updateURL({ search: null, sort: null, page: null });
+  };
+
+  const handleFilterByCategory = (value: categories) => {
+    handleReset();
+    updateURL({ category: value, page: 1 });
   };
 
   const deleteBookMutation = useMutation({
@@ -119,6 +126,7 @@ const BooksPage = () => {
             userData={userData}
             onDelete={() => deleteBookMutation.mutate(book.id)}
             isDeleting={deleteBookMutation.isPending}
+            onFilterByCategory={handleFilterByCategory}
           />
         ))}
       </div>
