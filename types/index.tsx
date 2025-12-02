@@ -6,7 +6,7 @@ export const VALID_BOOK_CATEGORIES = [
   "Biography",
 ] as const;
 
-export type categories = (typeof VALID_BOOK_CATEGORIES)[number];
+export type Categories = (typeof VALID_BOOK_CATEGORIES)[number];
 export interface Book {
   id: number;
   title: string;
@@ -14,7 +14,7 @@ export interface Book {
   price: number | string;
   thumbnail: string;
   author: string;
-  category: categories;
+  category: Categories;
   owner_id: number;
 }
 
@@ -31,7 +31,7 @@ export type BookFormValues = {
   title: string;
   description: string;
   author: string;
-  category: categories;
+  category: Categories;
   price: string;
   thumbnail: File | string | null;
 };

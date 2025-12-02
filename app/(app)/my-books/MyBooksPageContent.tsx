@@ -13,7 +13,7 @@ import MainPagination from "@/components/books/MainPagination";
 import SearchSortControls from "@/components/books/SearchSortControlers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { categories } from "@/types";
+import { Categories } from "@/types";
 
 const MyBookPage = () => {
   const router = useRouter();
@@ -23,7 +23,7 @@ const MyBookPage = () => {
   const page = Number(searchParams.get("page") || 1);
   const search = searchParams.get("search") || "";
   const sort = (searchParams.get("sort") as "asc" | "desc" | "none") || "none";
-  const category = (searchParams.get("category") as categories) || "all";
+  const category = (searchParams.get("category") as Categories) || "all";
   const [searchInput, setSearchInput] = useState(search);
 
   const updateURL = (params: Record<string, string | null | number>) => {
@@ -83,7 +83,7 @@ const MyBookPage = () => {
     updateURL({ search: null, sort: null, page: null, category: "all" });
   };
 
-  const handleFilterByCategory = (value: categories | "all") => {
+  const handleFilterByCategory = (value: Categories | "all") => {
     handleReset();
     updateURL({ category: value, page: 1 });
   };

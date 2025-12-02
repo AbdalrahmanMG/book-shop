@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search as SearchIcon, RotateCcw } from "lucide-react";
-import { categories, VALID_BOOK_CATEGORIES } from "@/types";
+import { Categories, VALID_BOOK_CATEGORIES } from "@/types";
 
 type SortOption = "asc" | "desc" | "none";
 
@@ -24,8 +24,8 @@ interface Props {
   onSearchSubmit: () => void;
   onSearchKeyPress: (e: KeyboardEvent<HTMLInputElement>) => void;
   onReset: () => void;
-  category: categories | "all";
-  onFilterCategory: (category: categories | "all") => void;
+  category: Categories | "all";
+  onFilterCategory: (category: Categories | "all") => void;
 }
 
 export default function SearchSortControls({
@@ -81,7 +81,7 @@ export default function SearchSortControls({
           {/* category filter */}
           <Select
             value={category}
-            onValueChange={(val) => onFilterCategory(val as categories | "all")}
+            onValueChange={(val) => onFilterCategory(val as Categories | "all")}
           >
             <SelectTrigger className="w-full md:w-[180px] h-10">
               <SelectValue placeholder="Filter by Category" />

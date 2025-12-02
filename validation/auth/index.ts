@@ -1,8 +1,8 @@
+import { VALID_BOOK_CATEGORIES } from "@/types";
 import z from "zod";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const categories = ["Technology", "Science", "History", "Fantasy", "Biography"] as const;
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -24,7 +24,7 @@ const baseBookFields = {
   title: z.string().trim().min(1, "Title is required").max(255),
   description: z.string().trim().min(10, "Description is required (min 10 chars)").max(5000),
   author: z.string().trim().min(1, "Author is required").max(255),
-  category: z.enum(categories, { message: "Category is required" }),
+  category: z.enum(VALID_BOOK_CATEGORIES, { message: "Category is required" }),
   price: z
     .string()
     .min(1, "Price is required")

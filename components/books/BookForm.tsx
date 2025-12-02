@@ -23,17 +23,17 @@ import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Categories, VALID_BOOK_CATEGORIES } from "@/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const categories = ["Technology", "Science", "History", "Fantasy", "Biography"] as const;
 
 export type BookFormData = {
   id?: string;
   title: string;
   description: string;
   author: string;
-  category: "Technology" | "Science" | "History" | "Fantasy" | "Biography";
+  category: Categories;
   price: string;
   thumbnail?: File | string | null;
 };
@@ -178,7 +178,7 @@ export function BookForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((cat) => (
+                    {VALID_BOOK_CATEGORIES.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
                       </SelectItem>

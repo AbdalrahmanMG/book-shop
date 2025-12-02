@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Book, categories, SafeUserData } from "@/types";
+import { Book, Categories, SafeUserData } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { memo, useState } from "react";
@@ -15,7 +15,7 @@ interface BookCardProps {
   userData?: SafeUserData | null;
   onDelete?: () => void;
   isDeleting?: boolean;
-  onFilterByCategory: (value: categories) => void;
+  onFilterByCategory: (value: Categories) => void;
 }
 
 const BookCard = ({

@@ -1,7 +1,7 @@
 "use server";
 
 import { uploadImage } from "@/lib/helper/uploadImages";
-import { categories, VALID_BOOK_CATEGORIES, Book } from "@/types";
+import { Categories, VALID_BOOK_CATEGORIES, Book } from "@/types";
 import { cookies } from "next/headers";
 import { updateBookSchema } from "@/validation/auth";
 import z from "zod";
@@ -26,7 +26,7 @@ interface GetBooksOptions {
   search?: string;
   sort?: "asc" | "desc" | "none";
   bookOwnerId?: number | null;
-  category?: categories | "all";
+  category?: Categories | "all";
 }
 
 const VALID_CATEGORIES: string[] = Object.values(VALID_BOOK_CATEGORIES);
@@ -110,7 +110,7 @@ export async function addBook(formData: FormData): Promise<AddBookResult> {
     const description = formData.get("description") as string;
     const priceString = formData.get("price") as string;
     const author = formData.get("author") as string;
-    const category = formData.get("category") as categories;
+    const category = formData.get("category") as Categories;
     const owner_id = Number(formData.get("owner_id"));
     const file = formData.get("thumbnail") as File;
 
