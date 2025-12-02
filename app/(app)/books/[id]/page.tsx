@@ -67,7 +67,7 @@ export default function BookDetailsPage() {
 
     setTimeout(() => {
       toast.dismiss("edit-toast");
-    }, 3000);
+    }, 2000);
     router.push(`/books/update-book?id=${bookId}`);
   };
 

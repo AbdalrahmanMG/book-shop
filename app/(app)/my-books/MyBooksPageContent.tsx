@@ -121,7 +121,7 @@ const MyBookPage = () => {
     toast.loading("📝 Opening editor...", { id: "edit-toast" });
     setTimeout(() => {
       toast.dismiss("edit-toast");
-    }, 3000);
+    }, 2000);
     router.push(`/books/update-book?id=${bookId}`);
   };
 
@@ -133,7 +133,7 @@ const MyBookPage = () => {
 
     setTimeout(() => {
       toast.dismiss("view-toast");
-    }, 3000);
+    }, 2000);
     router.push(`/books/${bookId}`);
   };
 
