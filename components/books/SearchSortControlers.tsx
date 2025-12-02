@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { KeyboardEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,16 +20,21 @@ interface Props {
   setSearch: (v: string) => void;
   sort: SortOption;
   setSort: (v: SortOption) => void;
+  onSearchSubmit: () => void;
+  onSearchKeyPress: (e: KeyboardEvent<HTMLInputElement>) => void;
+  onReset: () => void;
 }
 
-export default function SearchSortControls({ search, setSearch, sort, setSort }: Props) {
+export default function SearchSortControls({
+  search,
+  setSearch,
+  sort,
+  setSort,
+  onSearchKeyPress,
+  onSearchSubmit,
+  onReset,
+}: Props) {
   const isFilterActive = search !== "" || sort !== "none";
-
-  const handleReset = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch("");
-    setSort("none");
-  };
 
   return (
     <div className="w-full bg-card p-4 rounded-xl border shadow-sm">
@@ -39,10 +44,18 @@ export default function SearchSortControls({ search, setSearch, sort, setSort }:
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={onSearchKeyPress}
             placeholder="Search books by title, author, or category..."
             aria-label="Search books"
             className="pl-10 h-10"
           />
+          <Button
+            variant="outline"
+            className="whitespace-nowrap absolute right-1 top-1/2 -translate-y-1/2 h-8 px-4 rounded-md "
+            onClick={onSearchSubmit}
+          >
+            Search
+          </Button>
         </div>
 
         <div className="flex w-full md:w-auto gap-4">
@@ -61,7 +74,10 @@ export default function SearchSortControls({ search, setSearch, sort, setSort }:
 
           <Button
             variant="outline"
-            onClick={handleReset}
+            onClick={(e: React.FormEvent) => {
+              e.preventDefault();
+              onReset();
+            }}
             disabled={!isFilterActive}
             className="whitespace-nowrap h-10"
           >

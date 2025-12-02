@@ -16,18 +16,18 @@ interface PaginationProps {
         pages: number;
       }
     | undefined;
-  setPage: (newPage: number) => void;
+  onPageChange: (newPage: number) => void;
   page: number;
 }
 
-const MainPagination = ({ booksData, setPage, page }: PaginationProps) => {
+const MainPagination = ({ booksData, onPageChange, page }: PaginationProps) => {
   if (!booksData || booksData.pages <= 1) return null;
 
   const pagesArray = Array.from({ length: booksData.pages }, (_, i) => i + 1);
 
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= (booksData?.pages ?? 1)) {
-      setPage(newPage);
+      onPageChange(newPage);
     }
   };
 

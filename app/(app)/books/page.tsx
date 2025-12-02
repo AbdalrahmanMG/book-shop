@@ -1,5 +1,10 @@
 "use client";
 
+import { KeyboardEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import { getSessionData } from "@/api/auth/actions";
 import { getBooks } from "@/api/books/actions";
 import { deleteBook } from "@/api/books/actions";
@@ -8,29 +13,38 @@ import MainPagination from "@/components/books/MainPagination";
 import SearchSortControls from "@/components/books/SearchSortControlers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDebounce } from "@/lib/hooks/useDebounce";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
 
 const BooksPage = () => {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [bookOwnerId] = useState<number | null>(null);
-  const [sort, setSort] = useState<"asc" | "desc" | "none">("none");
-
-  const debouncedSearch = useDebounce(search, 400);
-  const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+
+  const page = Number(searchParams.get("page") || 1);
+  const search = searchParams.get("search") || "";
+  const sort = (searchParams.get("sort") as "asc" | "desc" | "none") || "none";
+  const [searchInput, setSearchInput] = useState(search);
+
+  const updateURL = (params: Record<string, string | null | number>) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "none") {
+        newParams.delete(key);
+      } else {
+        newParams.set(key, String(value));
+      }
+    });
+
+    router.push(`/books?${newParams.toString()}`);
+  };
 
   const {
     data: booksData,
     isLoading: isLoadingBooks,
     isError: isErrorBooks,
   } = useQuery({
-    queryKey: ["books", page, debouncedSearch, sort, bookOwnerId],
-    queryFn: () => getBooks({ page, pageSize: 12, search: debouncedSearch, sort, bookOwnerId }),
+    queryKey: ["books", page, search, sort],
+    queryFn: () => getBooks({ page, pageSize: 12, search, sort, bookOwnerId: null }),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 15,
   });
@@ -41,14 +55,27 @@ const BooksPage = () => {
     staleTime: Infinity,
   });
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
+  const handleSearchChange = () => {
+    updateURL({ search: searchInput.trim(), page: 1 });
+  };
+
+  const handleEnterPressForSearch = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearchChange();
+    }
   };
 
   const handleSortChange = (value: "asc" | "desc" | "none") => {
-    setSort(value);
-    setPage(1);
+    updateURL({ sort: value, page: 1 });
+  };
+
+  const handlePageChange = (value: number) => {
+    updateURL({ page: value });
+  };
+
+  const handleReset = () => {
+    setSearchInput("");
+    updateURL({ search: null, sort: null, page: null });
   };
 
   const deleteBookMutation = useMutation({
@@ -78,9 +105,7 @@ const BooksPage = () => {
     if (!booksData || booksData.books.length === 0) {
       return (
         <p className="text-center p-8 text-lg text-muted-foreground">
-          {bookOwnerId
-            ? "You haven't added any books yet."
-            : "No books found matching your criteria."}
+          No books found matching your criteria.
         </p>
       );
     }
@@ -113,13 +138,16 @@ const BooksPage = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <SearchSortControls
-            setSearch={handleSearchChange}
+            search={searchInput}
+            setSearch={setSearchInput}
             sort={sort}
-            search={search}
             setSort={handleSortChange}
+            onSearchKeyPress={handleEnterPressForSearch}
+            onSearchSubmit={handleSearchChange}
+            onReset={handleReset}
           />
           {renderContent()}
-          <MainPagination page={page} setPage={setPage} booksData={booksData} />
+          <MainPagination page={page} onPageChange={handlePageChange} booksData={booksData} />
         </CardContent>
       </Card>
     </div>
