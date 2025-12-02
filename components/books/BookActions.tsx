@@ -19,17 +19,23 @@ export const BookActions = ({
   isProcessing = false,
 }: BookActionsProps) => {
   return (
-    <div className="flex gap-2">
+    <div className={` ${isDetailsPage ? "flex-col sm:flex-row" : ""} flex gap-3`}>
       <Button
         variant="secondary"
-        size={"lg"}
         onClick={onEdit}
         disabled={isProcessing}
         title="Edit Book"
+        className={`${isDetailsPage ? " flex-1" : ""} py-3`}
       >
         <Pencil className="w-4 h-4" /> {isDetailsPage && "Edit"}
       </Button>
-      <Button variant="destructive" onClick={onDelete} title="Delete Book" disabled={isProcessing}>
+      <Button
+        variant="destructive"
+        onClick={onDelete}
+        title="Delete Book"
+        disabled={isProcessing}
+        className={`${isDetailsPage ? " flex-1 " : ""} py-3`}
+      >
         {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
         Delete
       </Button>

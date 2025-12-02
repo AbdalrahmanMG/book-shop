@@ -24,6 +24,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Categories, VALID_BOOK_CATEGORIES } from "@/types";
+import { useRouter } from "next/navigation";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -61,6 +62,7 @@ export function BookForm({
   submitButtonText,
   initialThumbnailUrl = null,
 }: BookFormProps) {
+  const router = useRouter();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,16 +236,27 @@ export function BookForm({
             )}
           />
 
-          <Button type="submit" className="mt-4" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {submitButtonText}...
-              </>
-            ) : (
-              submitButtonText
-            )}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 mt-2">
+            <Button type="submit" className="flex-1 " disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {submitButtonText}...
+                </>
+              ) : (
+                submitButtonText
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 "
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          </div>
         </form>
       </Form>
     </>
