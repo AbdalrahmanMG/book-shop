@@ -63,7 +63,7 @@ export default function SearchSortControls({
           </Button>
         </div>
 
-        <div className="flex w-full md:w-auto gap-4">
+        <div className="flex w-full md:w-auto gap-4 flex-wrap">
           {/* sort */}
           <Select value={sort} onValueChange={(val) => setSort(val as SortOption)}>
             <SelectTrigger className="w-full md:w-[180px] h-10">
