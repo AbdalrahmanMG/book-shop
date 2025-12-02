@@ -1,9 +1,0 @@
-[
-  {
-    "id": 1,
-    "name": "Admin",
-    "email": "admin@books.com",
-    "password": "admin123",
-    "image": "/thumbnails/berry1.png"
-  }
-]
