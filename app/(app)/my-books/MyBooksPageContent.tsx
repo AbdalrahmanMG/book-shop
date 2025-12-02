@@ -35,7 +35,7 @@ const MyBookPage = () => {
       }
     });
 
-    router.push(`/books?${newParams.toString()}`);
+    router.push(`/my-books?${newParams.toString()}`);
   };
 
   const { data: userData, isLoading } = useQuery({
