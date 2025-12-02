@@ -26,7 +26,7 @@ interface GetBooksOptions {
   search?: string;
   sort?: "asc" | "desc" | "none";
   bookOwnerId?: number | null;
-  category?: categories;
+  category?: categories | "all";
 }
 
 const VALID_CATEGORIES: string[] = Object.values(VALID_BOOK_CATEGORIES);
@@ -38,7 +38,7 @@ export async function getBooks({
   search = "",
   sort = "none",
   bookOwnerId = null,
-  category,
+  category = "all",
 }: GetBooksOptions) {
   let query = supabase.from("books").select("*", { count: "exact" });
 
@@ -46,7 +46,7 @@ export async function getBooks({
     query = query.eq("owner_id", bookOwnerId);
   }
 
-  if (category) {
+  if (category !== "all") {
     query = query.eq("category", category);
   }
 

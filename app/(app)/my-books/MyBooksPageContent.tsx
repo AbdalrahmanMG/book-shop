@@ -23,14 +23,14 @@ const MyBookPage = () => {
   const page = Number(searchParams.get("page") || 1);
   const search = searchParams.get("search") || "";
   const sort = (searchParams.get("sort") as "asc" | "desc" | "none") || "none";
-  const category = (searchParams.get("category") as categories) || "";
+  const category = (searchParams.get("category") as categories) || "all";
   const [searchInput, setSearchInput] = useState(search);
 
   const updateURL = (params: Record<string, string | null | number>) => {
     const newParams = new URLSearchParams(searchParams.toString());
 
     Object.entries(params).forEach(([key, value]) => {
-      if (value === null || value === "" || value === "none") {
+      if (value === null || value === "" || value === "none" || value === "all") {
         newParams.delete(key);
       } else {
         newParams.set(key, String(value));
@@ -80,10 +80,10 @@ const MyBookPage = () => {
 
   const handleReset = () => {
     setSearchInput("");
-    updateURL({ search: null, sort: null, page: null });
+    updateURL({ search: null, sort: null, page: null, category: "all" });
   };
 
-  const handleFilterByCategory = (value: categories) => {
+  const handleFilterByCategory = (value: categories | "all") => {
     handleReset();
     updateURL({ category: value, page: 1 });
   };
@@ -158,6 +158,8 @@ const MyBookPage = () => {
             onSearchKeyPress={handleEnterPressForSearch}
             onSearchSubmit={handleSearchChange}
             onReset={handleReset}
+            category={category || "all"}
+            onFilterCategory={handleFilterByCategory}
           />
           {renderContent()}
           <MainPagination page={page} onPageChange={handlePageChange} booksData={booksData} />

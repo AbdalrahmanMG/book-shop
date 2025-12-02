@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search as SearchIcon, RotateCcw } from "lucide-react";
+import { categories, VALID_BOOK_CATEGORIES } from "@/types";
 
 type SortOption = "asc" | "desc" | "none";
 
@@ -23,6 +24,8 @@ interface Props {
   onSearchSubmit: () => void;
   onSearchKeyPress: (e: KeyboardEvent<HTMLInputElement>) => void;
   onReset: () => void;
+  category: categories | "all";
+  onFilterCategory: (category: categories | "all") => void;
 }
 
 export default function SearchSortControls({
@@ -33,8 +36,10 @@ export default function SearchSortControls({
   onSearchKeyPress,
   onSearchSubmit,
   onReset,
+  category,
+  onFilterCategory,
 }: Props) {
-  const isFilterActive = search !== "" || sort !== "none";
+  const isFilterActive = search !== "" || sort !== "none" || category !== "all";
 
   return (
     <div className="w-full bg-card p-4 rounded-xl border shadow-sm">
@@ -45,7 +50,7 @@ export default function SearchSortControls({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={onSearchKeyPress}
-            placeholder="Search books by title, author, or category..."
+            placeholder="Search books by title"
             aria-label="Search books"
             className="pl-10 h-10"
           />
@@ -59,6 +64,7 @@ export default function SearchSortControls({
         </div>
 
         <div className="flex w-full md:w-auto gap-4">
+          {/* sort */}
           <Select value={sort} onValueChange={(val) => setSort(val as SortOption)}>
             <SelectTrigger className="w-full md:w-[180px] h-10">
               <SelectValue placeholder="Sort By Title" />
@@ -72,6 +78,25 @@ export default function SearchSortControls({
             </SelectContent>
           </Select>
 
+          {/* category filter */}
+          <Select
+            value={category}
+            onValueChange={(val) => onFilterCategory(val as categories | "all")}
+          >
+            <SelectTrigger className="w-full md:w-[180px] h-10">
+              <SelectValue placeholder="Filter by Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">All Categories</SelectItem>
+                {VALID_BOOK_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             onClick={(e: React.FormEvent) => {
