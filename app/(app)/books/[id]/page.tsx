@@ -20,6 +20,7 @@ export default function BookDetailsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const id = params.id as string;
 
@@ -43,7 +44,10 @@ export default function BookDetailsPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => deleteBook(id),
+    mutationFn: async (id: number) => {
+      setIsProcessing(true);
+      return deleteBook(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       toast.success("Book deleted successfully!");
@@ -55,7 +59,18 @@ export default function BookDetailsPage() {
     },
   });
 
-  const handleEdit = () => router.push(`/books/update-book?id=${bookId}`);
+  const handleEdit = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    toast.loading("📝 Opening editor...", { id: "edit-toast" });
+
+    setTimeout(() => {
+      toast.dismiss("edit-toast");
+    }, 3000);
+    router.push(`/books/update-book?id=${bookId}`);
+  };
+
   const handleDelete = () => deleteMutation.mutate(bookId);
   const isOwner = userData && book && userData.id === book.owner_id;
 
@@ -148,6 +163,7 @@ export default function BookDetailsPage() {
                   onDelete={() => setIsModalOpen(true)}
                   isDeleting={deleteMutation.isPending}
                   isDetailsPage={true}
+                  isProcessing={isProcessing}
                 />
               )}
             </div>

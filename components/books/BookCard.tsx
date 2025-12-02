@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Book, Categories, SafeUserData } from "@/types";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { memo, useState } from "react";
 import { Eye } from "lucide-react";
 import { DeleteModal } from "./DeleteModal";
@@ -14,7 +13,10 @@ interface BookCardProps {
   book: Book;
   userData?: SafeUserData | null;
   onDelete?: () => void;
+  onEdit?: () => void;
+  onView?: () => void;
   isDeleting?: boolean;
+  isAnyActionPending?: boolean;
   onFilterByCategory: (value: Categories) => void;
 }
 
@@ -22,25 +24,38 @@ const BookCard = ({
   book,
   userData,
   onDelete,
+  onEdit,
+  onView,
   isDeleting = false,
+  isAnyActionPending = false,
   onFilterByCategory,
 }: BookCardProps) => {
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isOwner = userData && userData.id === book.owner_id;
+  const isDisabled = isAnyActionPending || isDeleting;
 
   const handleEdit = () => {
-    router.push(`/books/update-book?id=${book.id}`);
+    if (isDisabled) return;
+    onEdit?.();
   };
 
   const handleView = () => {
-    router.push(`/books/${book.id}`);
+    if (isDisabled) return;
+    onView?.();
+  };
+
+  const handleDelete = () => {
+    if (isDisabled) return;
+    onDelete?.();
+    setIsModalOpen(false);
   };
 
   return (
     <>
-      <Card className="w-full flex flex-col transition-all duration-300 hover:shadow-lg rounded-xl overflow-hidden shadow-md border-2 border-transparent hover:border-primary/50">
+      <Card
+        className={`w-full flex flex-col transition-all duration-300 hover:shadow-lg rounded-xl overflow-hidden shadow-md border-2 border-transparent hover:border-primary/50 ${isDisabled ? "opacity-60 pointer-events-none" : ""}`}
+      >
         <div className="w-3/5 mx-auto mt-4 relative aspect-2/3 cursor-pointer" onClick={handleView}>
           <Image
             src={book.thumbnail}
@@ -69,7 +84,9 @@ const BookCard = ({
               className="cursor-pointer hover:text-primary/80"
               onClick={(e) => {
                 e.stopPropagation();
-                onFilterByCategory(book.category);
+                if (!isDisabled) {
+                  onFilterByCategory(book.category);
+                }
               }}
             >
               {book.category}
@@ -79,27 +96,31 @@ const BookCard = ({
         </CardContent>
 
         <CardFooter className="p-4 flex justify-center gap-2 border-t mt-auto">
-          <Button variant="outline" size="icon" onClick={handleView} title="View Details">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleView}
+            title="View Details"
+            disabled={isDisabled}
+          >
             <Eye className="w-4 h-4" />
           </Button>
 
           {isOwner && (
             <BookActions
               onEdit={handleEdit}
-              onDelete={() => setIsModalOpen(true)}
+              onDelete={() => !isDisabled && setIsModalOpen(true)}
               isDeleting={isDeleting}
+              isProcessing={isAnyActionPending}
             />
           )}
         </CardFooter>
       </Card>
 
       <DeleteModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onConfirm={() => {
-          onDelete?.();
-          setIsModalOpen(false);
-        }}
+        isOpen={isModalOpen && !isDisabled}
+        onOpenChange={(open) => !isDisabled && setIsModalOpen(open)}
+        onConfirm={handleDelete}
         title={`Do you want to delete "${book.title}"?`}
         description="This action cannot be undone and will permanently remove the book from the database."
       />

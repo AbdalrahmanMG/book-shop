@@ -25,6 +25,7 @@ const BooksPage = () => {
   const sort = (searchParams.get("sort") as "asc" | "desc" | "none") || "none";
   const category = (searchParams.get("category") as Categories) || "all";
   const [searchInput, setSearchInput] = useState(search);
+  const [isAnyActionPending, setIsAnyActionPending] = useState(false);
 
   const updateURL = (params: Record<string, string | null | number>) => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -58,43 +59,76 @@ const BooksPage = () => {
   });
 
   const handleSearchChange = () => {
+    if (isAnyActionPending) return;
     updateURL({ search: searchInput.trim(), page: 1 });
   };
 
   const handleEnterPressForSearch = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isAnyActionPending) {
       handleSearchChange();
     }
   };
 
   const handleSortChange = (value: "asc" | "desc" | "none") => {
+    if (isAnyActionPending) return;
     updateURL({ sort: value, page: 1 });
   };
 
   const handlePageChange = (value: number) => {
+    if (isAnyActionPending) return;
     updateURL({ page: value });
   };
 
   const handleReset = () => {
+    if (isAnyActionPending) return;
     setSearchInput("");
     updateURL({ search: null, sort: null, page: null, category: "all" });
   };
 
   const handleFilterByCategory = (value: Categories | "all") => {
+    if (isAnyActionPending) return;
     handleReset();
     updateURL({ category: value, page: 1 });
   };
 
   const deleteBookMutation = useMutation({
-    mutationFn: (id: number) => deleteBook(id),
+    mutationFn: async (id: number) => {
+      setIsAnyActionPending(true);
+      return deleteBook(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       toast.success("Book deleted successfully!");
+      setIsAnyActionPending(false);
     },
     onError: (error) => {
       toast.error(`Error deleting book: ${error.message || "Unknown error"}`);
+      setIsAnyActionPending(false);
     },
   });
+
+  const handleEdit = (bookId: number) => {
+    if (isAnyActionPending) return;
+    setIsAnyActionPending(true);
+
+    toast.loading("📝 Opening editor...", { id: "edit-toast" });
+
+    setTimeout(() => {
+      toast.dismiss("edit-toast");
+    }, 3000);
+    router.push(`/books/update-book?id=${bookId}`);
+  };
+
+  const handleView = (bookId: number) => {
+    if (isAnyActionPending) return;
+    setIsAnyActionPending(true);
+    toast.loading("📖 Loading book details...", { id: "view-toast" });
+
+    setTimeout(() => {
+      toast.dismiss("view-toast");
+    }, 3000);
+    router.push(`/books/${bookId}`);
+  };
 
   const renderContent = () => {
     if (isLoadingBooks) {
@@ -125,7 +159,10 @@ const BooksPage = () => {
             book={book}
             userData={userData}
             onDelete={() => deleteBookMutation.mutate(book.id)}
+            onEdit={() => handleEdit(book.id)}
+            onView={() => handleView(book.id)}
             isDeleting={deleteBookMutation.isPending}
+            isAnyActionPending={isAnyActionPending}
             onFilterByCategory={handleFilterByCategory}
           />
         ))}
@@ -141,7 +178,14 @@ const BooksPage = () => {
             📚 Book Collection
           </CardTitle>
           <div className="flex gap-3">
-            <Button onClick={() => router.push("/books/new-book")}>+ Add New Book</Button>
+            <Button
+              onClick={() => {
+                if (!isAnyActionPending) router.push("/books/new-book");
+              }}
+              disabled={isAnyActionPending}
+            >
+              + Add New Book
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -155,9 +199,15 @@ const BooksPage = () => {
             onReset={handleReset}
             category={category || "all"}
             onFilterCategory={handleFilterByCategory}
+            disabled={isAnyActionPending}
           />
           {renderContent()}
-          <MainPagination page={page} onPageChange={handlePageChange} booksData={booksData} />
+          <MainPagination
+            page={page}
+            onPageChange={handlePageChange}
+            booksData={booksData}
+            disabled={isAnyActionPending}
+          />
         </CardContent>
       </Card>
     </div>

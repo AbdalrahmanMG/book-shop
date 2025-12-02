@@ -26,6 +26,7 @@ interface Props {
   onReset: () => void;
   category: Categories | "all";
   onFilterCategory: (category: Categories | "all") => void;
+  disabled?: boolean;
 }
 
 export default function SearchSortControls({
@@ -38,26 +39,31 @@ export default function SearchSortControls({
   onReset,
   category,
   onFilterCategory,
+  disabled = false,
 }: Props) {
   const isFilterActive = search !== "" || sort !== "none" || category !== "all";
 
   return (
-    <div className="w-full bg-card p-4 rounded-xl border shadow-sm">
+    <div
+      className={`w-full bg-card p-4 rounded-xl border shadow-sm ${disabled ? "opacity-60" : ""}`}
+    >
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="flex-1 w-full relative">
           <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={onSearchKeyPress}
+            onChange={(e) => !disabled && setSearch(e.target.value)}
+            onKeyDown={(e) => !disabled && onSearchKeyPress(e)}
             placeholder="Search books by title"
             aria-label="Search books"
             className="pl-10 h-10"
+            disabled={disabled}
           />
           <Button
             variant="outline"
-            className="whitespace-nowrap absolute right-1 top-1/2 -translate-y-1/2 h-8 px-4 rounded-md "
+            className="whitespace-nowrap absolute right-1 top-1/2 -translate-y-1/2 h-8 px-4 rounded-md"
             onClick={onSearchSubmit}
+            disabled={disabled}
           >
             Search
           </Button>
@@ -65,7 +71,11 @@ export default function SearchSortControls({
 
         <div className="flex w-full md:w-auto gap-4 flex-wrap">
           {/* sort */}
-          <Select value={sort} onValueChange={(val) => setSort(val as SortOption)}>
+          <Select
+            value={sort}
+            onValueChange={(val) => !disabled && setSort(val as SortOption)}
+            disabled={disabled}
+          >
             <SelectTrigger className="w-full md:w-[180px] h-10">
               <SelectValue placeholder="Sort By Title" />
             </SelectTrigger>
@@ -81,7 +91,8 @@ export default function SearchSortControls({
           {/* category filter */}
           <Select
             value={category}
-            onValueChange={(val) => onFilterCategory(val as Categories | "all")}
+            onValueChange={(val) => !disabled && onFilterCategory(val as Categories | "all")}
+            disabled={disabled}
           >
             <SelectTrigger className="w-full md:w-[180px] h-10">
               <SelectValue placeholder="Filter by Category" />
@@ -101,9 +112,9 @@ export default function SearchSortControls({
             variant="outline"
             onClick={(e: React.FormEvent) => {
               e.preventDefault();
-              onReset();
+              if (!disabled) onReset();
             }}
-            disabled={!isFilterActive}
+            disabled={!isFilterActive || disabled}
             className="whitespace-nowrap h-10"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
