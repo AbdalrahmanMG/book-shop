@@ -5,6 +5,18 @@ import { useForm } from "react-hook-form";
 import { BookForm, BookFormData } from "@/components/books/BookForm";
 import React from "react";
 
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 // Mock next/image
 vi.mock("next/image", () => ({
   __esModule: true,
@@ -151,7 +163,7 @@ describe("BookForm", () => {
 
     render(<BookFormWrapper onSubmit={mockSubmit} isSubmitting={true} />);
 
-    const submitButton = screen.getByRole("button");
+    const submitButton = screen.getByRole("button", { name: /submit/i });
     expect(submitButton).toBeDisabled();
     expect(submitButton).toHaveTextContent(/submit\.\.\./i);
   });
